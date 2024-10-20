@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "LANConnect (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "LANConnect (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

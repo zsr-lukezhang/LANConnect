@@ -16,11 +16,21 @@
     <Grid>
         <StackPanel x:Name="SP_Logo" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
             <TextBlock Text="LANConnect" FontFamily="Cascadia Code" FontSize="30" FontWeight="Bold"></TextBlock>
-            <TextBlock Text="Powered by VoceChat" FontFamily="Cascadia Code" FontSize="15" FontWeight="Normal"></TextBlock>
+            <TextBlock Text="Powered by VoceChat" FontFamily="Cascadia Code" FontSize="15.5" FontWeight="Normal"></TextBlock>
         </StackPanel>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBox Name="serverURLBox" Header="Server URL:" PlaceholderText="https://privoce.voce.chat:443" FontFamily="Cascadia Code" FontSize="15" FontWeight="Normal" Width="300" Height="60" Margin="5" ></TextBox>
-            <Button Content="Ckeck Server" x:Name="checkServerButton" HorizontalAlignment="Center" Click="checkServerButton_Click" Margin="5"></Button>
+        <StackPanel x:Name="SP_CheckServer" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBox Name="serverURLBox" Header="Server URL:" PlaceholderText="https://vocechat.example.com:443" FontFamily="Cascadia Code" FontSize="15" FontWeight="Normal" Width="300" Height="60" Margin="5" ></TextBox>
+            <Button Content="Check Server" x:Name="checkServerButton" HorizontalAlignment="Center" Click="checkServerButton_Click" Margin="5"></Button>
+        </StackPanel>
+        <StackPanel x:Name="SP_Login" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Visibility="Collapsed">
+            <TextBox Name="userEmailBox" PlaceholderText="admin@lukezhang.win" Header="Enter your Email:" FontFamily="Cascadia Code" Width="300" Height="60" Visibility="Visible"></TextBox>
+            <PasswordBox Name="userPasswordBox" PlaceholderText="123456" Header="Enter your password:" FontFamily="Cascadia Code" Width="300" Height="60" Visibility="Visible"></PasswordBox>
+            <Button Name="userPasswordLoginButton" Content="Login" Click="userPasswordLoginButton_Click" HorizontalAlignment="Center" Margin="10" Visibility="Visible"></Button>
+        </StackPanel>
+        <StackPanel x:Name="SP_ServerName" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="100,100,100,100" Visibility="Collapsed">
+            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="25"></TextBlock>
+            <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="10,10,10,10"></TextBlock>
+            <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="Normal" FontFamily="Cascadia Code" FontSize="15.5" HorizontalAlignment="Center" Margin="5,5,5,5"></TextBlock>
         </StackPanel>
     </Grid>
 

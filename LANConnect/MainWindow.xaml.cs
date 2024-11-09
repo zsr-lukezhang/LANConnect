@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
@@ -17,6 +18,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -31,6 +33,9 @@ namespace LANConnect
         public MainWindow()
         {
             this.InitializeComponent();
+
+            // 将标题栏隐去
+            ExtendsContentIntoTitleBar = true;
         }
 
         private async void checkServerButton_Click(object sender, RoutedEventArgs e)
@@ -38,63 +43,89 @@ namespace LANConnect
             // Debug 显示分行
             Debug.WriteLine("========================");
 
-            // 设定变量
-            string serverName = "";
-            string serverBio = "";
-
-            // 获取服务器的名称
-            serverName = await getServerName(serverURLBox.Text,"name");
-
-            // 处理返回值
-            // 判断开头是否为 Error
-
-            if (serverName.StartsWith("Error") ) 
+            // 判断地址是否为空
+            if(serverURLBox.Text != string.Empty)
             {
-                Debug.WriteLine("This is checkServerButton speaking ");
-                Debug.WriteLine("getServerName returns a bad one: Error");
-                Debug.WriteLine("The string is showed below:");
-                Debug.WriteLine(serverName);
+                
+                // 正常时
+
+                // 设定变量
+                string serverName = "";
+                string serverBio = "";
+
+                // 处理返回值
+                // 判断开头是否为 Error
+                serverName = await getServerName(serverURLBox.Text, "name");
+                if (serverName.StartsWith("Error"))
+                {
+                    Debug.WriteLine("This is checkServerButton speaking ");
+                    Debug.WriteLine("getServerName name returns a bad one: Error");
+                    Debug.WriteLine("The string is showed below:");
+                    Debug.WriteLine(serverName);
+                }
+                else
+                {
+                    Debug.WriteLine("This is checkServerButton speaking ");
+                    Debug.WriteLine("getServerName name returns a good one:" + serverName);
+                    serverNameTextBlock.Text = serverName;
+                    SP_CheckServer.Visibility = Visibility.Collapsed;
+                    SP_Login.Visibility = Visibility.Visible;
+                    SP_ServerName.Visibility = Visibility.Visible;
+                }
+
+                serverBio = await getServerName(serverURLBox.Text, "bio");
+                if (serverBio.StartsWith("Error"))
+                {
+                    Debug.WriteLine("This is checkServerButton speaking ");
+                    Debug.WriteLine("getServerName bio returns a bad one: Error");
+                    Debug.WriteLine("The string is showed below:");
+                    Debug.WriteLine(serverBio);
+                }
+                else
+                {
+                    Debug.WriteLine("This is checkServerButton speaking ");
+                    Debug.WriteLine("getServerName bio returns a good one:" + serverBio);
+                    serverBioTextBlock.Text = serverBio;
+                }
             }
             else
             {
-                Debug.WriteLine("This is checkServerButton speaking ");
-                Debug.WriteLine("getServerName returns a good one:" + serverName);
-            }
-
-            serverBio = await getServerName(serverURLBox.Text, "bio");
-            if (serverBio.StartsWith("Error"))
-            {
-                Debug.WriteLine("This is checkServerButton speaking ");
-                Debug.WriteLine("getServerName returns a bad one: Error");
-                Debug.WriteLine("The string is showed below:");
-                Debug.WriteLine(serverBio);
-            }
-            else
-            {
-                Debug.WriteLine("This is checkServerButton speaking ");
-                Debug.WriteLine("getServerName returns a good one:" + serverBio);
+                    Debug.WriteLine("Server URL seems to be nothing");
+                    return;
             }
         }
 
-        public async Task<int> PostRequestAsync(string url, string apiKey, string content)
+
+
+        public async Task<object> PostRequestAsync(string url, string apiKey, string content, string returnType)
         {
             using (HttpClient client = new HttpClient())
             {
                 // 设定 Header
-                client.DefaultRequestHeaders.Add("accept", "*/*");
-                client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
-                client.DefaultRequestHeaders.Add("Content-Type", "application/json; charset=utf-8");
-                
+                client.DefaultRequestHeaders.Add("accept", "application/json; charset=utf-8");
+                if (!string.IsNullOrEmpty(apiKey))
+                {
+                    client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+                }
+
                 // 设编码格式为 UTF-8
                 HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
-                
+
                 // 发送请求                
                 HttpResponseMessage response = await client.PostAsync(url, httpContent);
 
-                // 返回状态码
-                return (int)response.StatusCode;
+                if (returnType == "text")
+                {
+                    return await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    // 返回状态码
+                    return (int)response.StatusCode;
+                }
             }
         }
+
 
         public async Task<string> GetRequestAsync(string url, string apiKey)
         {
@@ -183,25 +214,29 @@ namespace LANConnect
             }
         }
 
-        private async void changeServerName(object sender, RoutedEventArgs e)
+        private async Task<int> changeServerName(string url, string apiKey, string newServerName, string NewServerBio)
         {
             try
             {
                 // 设定用于调用 PostRequestAsync 的变量值
-                string url = "https://familychat.lukezhang.win/api/admin/system/organization";
-                string apiKey = "eyJhbGciOiJIUzI1NiJ9.eyJkIjp7InVpZCI6MSwiZGV2aWNlIjoid2ViOjRUWFhVQS1KRWdxb0F1dVlvUmNndiIsImlzX2FkbWluIjp0cnVlLCJpc19ndWVzdCI6ZmFsc2V9LCJlIjoiMjAyNC0xMS0wOFQxMDoyODozOS40MTQyODI3NjVaIiwibiI6ImFYU3hHS3ZtTFdjQUFBQUEiLCJ0IjoiQWNjZXNzVG9rZW4ifQ.KX-AJjQ3lkVwiNko8gXVwWr52TcJ20FkPXoJYhGhI_o";
-                string content = "{\"name\": \"Family Chat\", \"description\": \"Woof!\"}";
+                // 设定 JSON 原内容
+                var Json = $@"{{
+    ""name"": ""{newServerName}"",
+    ""description"": ""{NewServerBio}""
+}}";
 
                 // 调用与设定返回值
-                int statusCode = await PostRequestAsync(url, apiKey, content);
+                int statusCode = (int)await PostRequestAsync(url, apiKey, Json, "int");
 
-                // 处理状态码，例如显示在 UI 上
+                // 处理状态码
                 Debug.WriteLine($"HTTP Status Code: {statusCode}");
+                return (statusCode);
             }
             catch (Exception ex)
             {
                 // 处理异常，例如显示错误消息
                 Debug.WriteLine($"Error: {ex.Message}");
+                return (0);
             }
         }
 
@@ -246,5 +281,60 @@ namespace LANConnect
             return string.Empty;
         }
 
+        private async void userPasswordLoginButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // 获取 Token
+                await UserPasswordLogin(userEmailBox.Text, userPasswordBox.Password, "token");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("This is userPasswordLoginButton speaking");
+                Debug.WriteLine("Error: " + ex);
+            }
+        }
+
+        private async Task<string> UserPasswordLogin(string Email, string Password, string Type)
+        {
+            // 设定 JSON 原内容
+            var Json = $@"{{
+    ""credential"": {{
+        ""email"": ""{Email}"",
+        ""password"": ""{Password}"",
+        ""type"": ""password""
+    }},
+    ""device"": ""web"",
+    ""device_token"": null
+}}";
+
+            // 调用 PostRequestAsync 并设定变量
+            string URL = serverURLBox.Text + "/api/token/login";
+
+            // HTTP Status Code
+            int Code = (int)await PostRequestAsync(URL, "", Json, "int");
+
+            // 获取API返回的内容
+            string Content = (string)await PostRequestAsync(URL, "", Json, "text");
+
+            Debug.WriteLine("This is UserPasswordLogin speaking");
+            Debug.WriteLine("PostRequestAsync returned the following content:");
+            Debug.WriteLine(Content);
+            Debug.WriteLine("With the following HTTP status code: " + $"{Code}");
+
+            // 检验 HTTP Status Code的正确性
+            if (Code == 200)
+            {
+                string Returned = JsonDecode(Content, Type);
+                Debug.WriteLine("This is UserPasswordLogin speaking");
+                Debug.WriteLine("JsonDecode returned:" + Returned);
+                return Returned;
+            }
+            else
+            {
+                int TryAgain = (int)await PostRequestAsync(URL, "", Json, "int");
+                return ("Error: " + $"TryAgain");
+            }
+        }
     }
 }

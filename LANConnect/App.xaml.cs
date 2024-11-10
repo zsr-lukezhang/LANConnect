@@ -45,6 +45,12 @@ namespace LANConnect
             m_window.Activate();
         }
 
+        public Window MainWindow
+        {
+            get { return m_window; }
+            private set { m_window = value; }
+        }
+
         private Window m_window;
     }
 }

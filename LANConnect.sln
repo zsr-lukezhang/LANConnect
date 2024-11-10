@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.11.35312.102
+VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LANConnect", "LANConnect\LANConnect.csproj", "{60755ACE-1966-4E92-B0D7-D615FCCA131F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LANConnect", "LANConnect\LANConnect.csproj", "{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,29 +15,29 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|ARM64.Build.0 = Debug|ARM64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|ARM64.Deploy.0 = Debug|ARM64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|x64.ActiveCfg = Debug|x64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|x64.Build.0 = Debug|x64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|x64.Deploy.0 = Debug|x64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|x86.ActiveCfg = Debug|x86
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|x86.Build.0 = Debug|x86
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Debug|x86.Deploy.0 = Debug|x86
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|ARM64.ActiveCfg = Release|ARM64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|ARM64.Build.0 = Release|ARM64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|ARM64.Deploy.0 = Release|ARM64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|x64.ActiveCfg = Release|x64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|x64.Build.0 = Release|x64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|x64.Deploy.0 = Release|x64
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|x86.ActiveCfg = Release|x86
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|x86.Build.0 = Release|x86
-		{60755ACE-1966-4E92-B0D7-D615FCCA131F}.Release|x86.Deploy.0 = Release|x86
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|ARM64.Build.0 = Debug|ARM64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|x64.ActiveCfg = Debug|x64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|x64.Build.0 = Debug|x64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|x64.Deploy.0 = Debug|x64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|x86.ActiveCfg = Debug|x86
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|x86.Build.0 = Debug|x86
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Debug|x86.Deploy.0 = Debug|x86
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|ARM64.ActiveCfg = Release|ARM64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|ARM64.Build.0 = Release|ARM64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|ARM64.Deploy.0 = Release|ARM64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|x64.ActiveCfg = Release|x64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|x64.Build.0 = Release|x64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|x64.Deploy.0 = Release|x64
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|x86.ActiveCfg = Release|x86
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|x86.Build.0 = Release|x86
+		{000BC64B-2ED2-4380-9BD3-B8019B0E7B4A}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {456171B9-4E12-4AD8-8D40-41E2D6C2A99B}
+		SolutionGuid = {F0B41861-49E6-4323-952B-2A07E784260E}
 	EndGlobalSection
 EndGlobal

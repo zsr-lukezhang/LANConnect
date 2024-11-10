@@ -8,11 +8,11 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="17f2bb6e-7b46-4ceb-8516-cb42d303e7f7"
+    Name="c6dc12d1-9bb0-43af-8a91-dcc8a276d492"
     Publisher="CN=Luke"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="17f2bb6e-7b46-4ceb-8516-cb42d303e7f7" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="c6dc12d1-9bb0-43af-8a91-dcc8a276d492" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>LANConnect</DisplayName>

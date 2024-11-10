@@ -10,7 +10,7 @@
     Title="LANConnect">
 
     <Window.SystemBackdrop>
-        <MicaBackdrop />
+        <MicaBackdrop></MicaBackdrop>
     </Window.SystemBackdrop>
 
     <Grid>
@@ -28,10 +28,20 @@
             <Button Name="userPasswordLoginButton" Content="Login" Click="userPasswordLoginButton_Click" HorizontalAlignment="Center" Margin="10" Visibility="Visible"></Button>
         </StackPanel>
         <StackPanel x:Name="SP_ServerName" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="100,100,100,100" Visibility="Collapsed">
-            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="25"></TextBlock>
+            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server:" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="25"></TextBlock>
             <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="10,10,10,10"></TextBlock>
             <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="Normal" FontFamily="Cascadia Code" FontSize="15.5" HorizontalAlignment="Center" Margin="5,5,5,5"></TextBlock>
         </StackPanel>
+        <NavigationView x:Name="featuresNV" SelectionChanged="featuresNV_SelectionChanged" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Icon="Home" Content="Home" Tag="HomePage" />
+                <NavigationViewItem Icon="People" Content="People" Tag="PeoplePage" />
+                <NavigationViewItem Icon="Folder" Content="Files" Tag="FilesPage" />
+                <NavigationViewItem Icon="Favorite" Content="Favorites" Tag="FavouritesPage" />
+            </NavigationView.MenuItems>
+            <Frame x:Name="contentFrame"></Frame>
+           
+        </NavigationView>
     </Grid>
 
 </Window>

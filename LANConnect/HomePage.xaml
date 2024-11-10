@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="LANConnect.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:LANConnect"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <StackPanel x:Name="SP_Logo" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="50,50,50,50">
+            <TextBlock Text="LANConnect" FontFamily="Cascadia Code" FontSize="30" FontWeight="Bold"></TextBlock>
+            <TextBlock Text="Powered by VoceChat" FontFamily="Cascadia Code" FontSize="15.5" FontWeight="Normal"></TextBlock>
+        </StackPanel>
+        <StackPanel x:Name="SP_ServerName" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="100,50,100,100" Visibility="Visible">
+            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server:" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="25" HorizontalAlignment="Center" Margin="0,50,0,0"></TextBlock>
+            <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="0,10,0,0"></TextBlock>
+            <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="Normal" FontFamily="Cascadia Code" FontSize="15.5" HorizontalAlignment="Center" Margin="0,5,0,0"></TextBlock>
+
+        </StackPanel>
+
+        <TextBlock Text="Home Page" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="20"></TextBlock>
+    </Grid>
+</Page>

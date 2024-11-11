@@ -14,9 +14,12 @@
     </Window.SystemBackdrop>
 
     <Grid>
-        <StackPanel x:Name="SP_Logo" Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
-            <TextBlock Text="LANConnect" FontFamily="Cascadia Code" FontSize="30" FontWeight="Bold"></TextBlock>
-            <TextBlock Text="Powered by VoceChat" FontFamily="Cascadia Code" FontSize="15.5" FontWeight="Normal"></TextBlock>
+        <StackPanel x:Name="SP_Logo" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50,50,0,0">
+            <Image Source="/Assets/StoreLogo.png" Width="60" Height="60" HorizontalAlignment="Left" VerticalAlignment="Center"></Image>
+            <StackPanel x:Name="SP_Logo_Text" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,0,0,0">
+                <TextBlock Text="LANConnect" FontFamily="Cascadia Code" FontSize="30" FontWeight="Bold"></TextBlock>
+                <TextBlock Text="Powered by VoceChat" FontFamily="Cascadia Code" FontSize="15.5" FontWeight="Normal" HorizontalAlignment="Center"></TextBlock>
+            </StackPanel>
         </StackPanel>
         <StackPanel x:Name="SP_CheckServer" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBox Name="serverURLBox" Header="Server URL:" PlaceholderText="https://vocechat.example.com:443" FontFamily="Cascadia Code" FontSize="15" FontWeight="Normal" Width="300" Height="60" Margin="5" ></TextBox>
@@ -32,7 +35,7 @@
             <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="10,10,10,10"></TextBlock>
             <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="Normal" FontFamily="Cascadia Code" FontSize="15.5" HorizontalAlignment="Center" Margin="5,5,5,5"></TextBlock>
         </StackPanel>
-        <NavigationView x:Name="featuresNV" SelectionChanged="featuresNV_SelectionChanged" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed">
+        <NavigationView x:Name="featuresNV" IsBackButtonVisible="Auto" IsBackEnabled="True" SelectionChanged="featuresNV_SelectionChanged" BackRequested="featuresNV_BackRequested" PaneDisplayMode="Auto" OpenPaneLength="200" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed">
             <NavigationView.MenuItems>
                 <NavigationViewItem Icon="Home" Content="Home" Tag="HomePage" />
                 <NavigationViewItem Icon="People" Content="People" Tag="PeoplePage" />
@@ -40,7 +43,6 @@
                 <NavigationViewItem Icon="Favorite" Content="Favorites" Tag="FavouritesPage" />
             </NavigationView.MenuItems>
             <Frame x:Name="contentFrame"></Frame>
-           
         </NavigationView>
     </Grid>
 

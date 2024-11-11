@@ -37,6 +37,7 @@ namespace LANConnect
         {
             this.InitializeComponent();
 
+            // 加载自己（？）
             Assembly.Load("LANConnect");
 
             // 将标题栏隐去
@@ -55,7 +56,7 @@ namespace LANConnect
 
         // featuresNV: 主面板。
         // SelectionChanged: 选中项更改。
-        private void featuresNV_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        private async void featuresNV_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             // 设置页独有
             if (args.IsSettingsSelected)
@@ -75,6 +76,8 @@ namespace LANConnect
                         // 各个项的 Tag
                         case "HomePage":
                             contentFrame.Navigate(typeof(HomePage));
+                            string userToken = await ReadFileAsync("User/userToken.txt");
+                            await setupServerWindow(userToken);
                             break;
                         case "PeoplePage":
                             contentFrame.Navigate(typeof(PeoplePage));
@@ -86,6 +89,8 @@ namespace LANConnect
                             contentFrame.Navigate(typeof(FavouritesPage));
                             break;
                     }
+                    featuresNV.SelectedItem = selectedItem;
+                    
                 }
             }
         }
@@ -95,11 +100,46 @@ namespace LANConnect
         {
             if (featuresNV != null)
             {
-                featuresNV.Width = this.Bounds.Width - 10;
-                featuresNV.Height = this.Bounds.Height - 35;
+                if (this.Bounds.Width > 15 && this.Bounds.Height > 40) 
+                {
+                    featuresNV.Width = this.Bounds.Width - 10;
+                    featuresNV.Height = this.Bounds.Height - 35;
+                }
+                else
+                {
+                    featuresNV.Width = this.Bounds.Width;
+                    featuresNV.Height = this.Bounds.Height;
+                }
             }
         }
 
+        // featuresNV_BackRequested: 处理向后导航的按钮事件
+        private void featuresNV_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
+        {
+            if (contentFrame.CanGoBack)
+            {
+                contentFrame.GoBack();
+                UpdateSelectedItem();
+            }
+        }
+
+        private async void UpdateSelectedItem()
+        {
+            foreach (NavigationViewItemBase item in featuresNV.MenuItems)
+            {
+                if (item is NavigationViewItem navItem && navItem.Tag.ToString() == contentFrame.CurrentSourcePageType.Name)
+                {
+                    featuresNV.SelectedItem = navItem;
+                    Debug.WriteLine($"navItem:{navItem}");
+                    if (navItem.Tag.ToString().Equals("HomePage"))
+                    {
+                        string Token = await ReadFileAsync("User/userToken.txt");
+                        await setupServerWindow(Token);
+                    }
+                    break;
+                }
+            }
+        }
 
         private async void checkServerButton_Click(object sender, RoutedEventArgs e)
         {
@@ -149,6 +189,19 @@ namespace LANConnect
                     Debug.WriteLine("This is checkServerButton speaking ");
                     Debug.WriteLine("getServerName bio returns a good one:" + serverBio);
                     serverBioTextBlock.Text = serverBio;
+                    string saveURLStatus =  await SaveFileAsync(serverURLBox.Text, "User/serverURL.txt");
+                    if (saveURLStatus.StartsWith("Success"))
+                    {
+                        Debug.WriteLine("This is checkServerButton speaking");
+                        Debug.WriteLine("Save server URL success");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("This is checkServerButton speaking");
+                        Debug.WriteLine("Error when saving server URL.");
+                        Debug.WriteLine("The error message is shown below:");
+                        Debug.WriteLine(saveURLStatus);
+                    }
                 }
             }
             else
@@ -351,7 +404,7 @@ namespace LANConnect
 
                 // 调用 setupServerWindow
                 string setupStatus = await setupServerWindow(Token);
-                if (setupStatus == "Success")
+                if (setupStatus.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is userPasswordLoginButton Speaking");
                     Debug.WriteLine("setupServerWindow returned 'Successful'. ");
@@ -404,6 +457,16 @@ namespace LANConnect
                 string Returned = JsonDecode(Content, Type);
                 Debug.WriteLine("This is UserPasswordLogin speaking");
                 Debug.WriteLine("JsonDecode returned:" + Returned);
+                string saveTokenStatus = await SaveFileAsync(Returned, "User/userToken.txt");
+                if(saveTokenStatus.StartsWith("Success"))
+                {
+                    Debug.WriteLine("Save user token success");
+                }
+                else
+                {
+                    Debug.WriteLine("Save user token failed with the error message below:");
+                    Debug.WriteLine(saveTokenStatus);
+                }
                 return Returned;
             }
             else
@@ -424,7 +487,7 @@ namespace LANConnect
                 string serverBio = JsonDecode(serverInfo, "description");
 
                 // 获取当前用户的所有信息
-                string UserInfo = await GetRequestAsync(serverURLBox.Text + "/api/user/me", Token);
+                string UserInfo = await GetRequestAsync($"{serverURLBox.Text}/api/user/me", Token);
                 Debug.WriteLine("This is setupServerWindow speaking");
                 Debug.WriteLine("UserInfo:");
                 Debug.WriteLine(UserInfo);
@@ -453,9 +516,16 @@ namespace LANConnect
                 string CreateBy = JsonDecode(UserInfo, "create_by");
                 Debug.WriteLine("CreateBy: " + CreateBy);
 
+                // 保存用户名与密码
+                string saveEmailStatus = await SaveFileAsync(Email, "User/userEmail.txt");
+                Debug.WriteLine($"saveEmailStatus:{saveEmailStatus}");
+                string savePasswordStatus = await SaveFileAsync(userPasswordBox.Password, "User/userPassword.txt");
+                Debug.WriteLine($"savePasswordStatus:{savePasswordStatus}");
+
+
                 // 更改主面版的主页设置
                 string NVSetHomePageStatus = NVSetHomePage(featuresNV, "HomePage");
-                if (NVSetHomePageStatus == "Success")
+                if (NVSetHomePageStatus.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is setupServerWindow speaking");
                     Debug.WriteLine("NVSetHomePage returns Success");
@@ -479,7 +549,7 @@ namespace LANConnect
 
                 // 更改服务器名称
                 string ChangeOtherPagesStatus = await ChangeOtherPagesAsync("HomePage", "serverNameTextBlock", "Text", serverName);
-                if (ChangeOtherPagesStatus == "Success")
+                if (ChangeOtherPagesStatus.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is setupServerWindow speaking");
                     Debug.WriteLine("ChangeOtherPages returns Success");
@@ -494,7 +564,7 @@ namespace LANConnect
 
                 // 更改服务器简介
                 string ChangeOtherPages_Bio_Status = await ChangeOtherPagesAsync("HomePage", "serverBioTextBlock", "Text", serverBio);
-                if (ChangeOtherPages_Bio_Status == "Success")
+                if (ChangeOtherPages_Bio_Status.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is setupServerWindow speaking");
                     Debug.WriteLine("ChangeOtherPages returns Success");

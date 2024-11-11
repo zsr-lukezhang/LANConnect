@@ -524,18 +524,18 @@ namespace LANConnect
 
 
                 // 更改主面版的主页设置
-                string NVSetHomePageStatus = NVSetHomePage(featuresNV, "HomePage");
-                if (NVSetHomePageStatus.StartsWith("Success"))
+                string NVSetPageStatus = NVSetPage(featuresNV, "HomePage");
+                if (NVSetPageStatus.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is setupServerWindow speaking");
-                    Debug.WriteLine("NVSetHomePage returns Success");
+                    Debug.WriteLine("NVSetPage returns Success");
                 }
                 else
                 {
                     Debug.WriteLine("This is setupServerWindow speaking");
-                    Debug.WriteLine("NVSetHomePage returns an error.");
+                    Debug.WriteLine("NVSetPage returns an error.");
                     Debug.WriteLine("The error message is shown below:");
-                    Debug.WriteLine(NVSetHomePageStatus);
+                    Debug.WriteLine(NVSetPageStatus);
                 }
 
 
@@ -645,7 +645,7 @@ namespace LANConnect
             }
         }
 
-        public string NVSetHomePage(NavigationView navigationView, string pageName)
+        public string NVSetPage(NavigationView navigationView, string pageName)
         {
             try
             {
@@ -653,6 +653,7 @@ namespace LANConnect
                 {
                     if (item is NavigationViewItem navItem && navItem.Tag.ToString() == pageName)
                     {
+                        // 更新左侧 Pane
                         navigationView.SelectedItem = navItem;
 
                         // 调试输出
@@ -663,6 +664,22 @@ namespace LANConnect
                         {
                             pageType = typeof(HomePage);
                         }
+                        if (pageName == "SettingsPage")
+                        {
+                            pageType = typeof(SettingsPage);
+                        }
+                        if (pageName == "FilesPage")
+                        {
+                            pageType = typeof(FilesPage);
+                        }
+                        if (pageName == "PeoplePage")
+                        {
+                            pageType = typeof(PeoplePage);
+                        }
+                        if (pageName == "FavouritesPage")
+                        {
+                            pageType = typeof(FavouritesPage);
+                        }
                         else
                         {
                             var fullPageName = $"LANConnect.Pages.{pageName}";
@@ -671,7 +688,7 @@ namespace LANConnect
 
                         if (pageType == null)
                         {
-                            Debug.WriteLine("This is NVSetHomePage speaking");
+                            Debug.WriteLine("This is NVSetPage speaking");
                             Debug.WriteLine("Error: Page type not found");
                             return $"Error: Page type {pageName} not found";
                         }
@@ -680,13 +697,13 @@ namespace LANConnect
                         return "Success";
                     }
                 }
-                Debug.WriteLine("This is NVSetHomePage speaking");
+                Debug.WriteLine("This is NVSetPage speaking");
                 Debug.WriteLine("Error: Page Not Found.");
                 return $"Error: Page {pageName} in {navigationView} not found";
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("This is NVSetHomePage speaking");
+                Debug.WriteLine("This is NVSetPage speaking");
                 Debug.WriteLine("Error. The error message is shown below:");
                 Debug.WriteLine(ex.Message);
                 return $"Error: {ex.Message}";

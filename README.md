@@ -1,5 +1,5 @@
 # LANConnect
-> Still developing, no releases.
+> Still ~~sleeping~~ developing, no releases.
 ## Features
 - [X] Join a VoceChat server  
 - [ ] Send Messages  

@@ -39,6 +39,7 @@
             <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="10,10,10,10"></TextBlock>
             <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="Normal" FontFamily="Cascadia Code" FontSize="15.5" HorizontalAlignment="Center" Margin="5,5,5,5"></TextBlock>
         </StackPanel>
+        <ProgressRing x:Name="LoadingRing" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50" Height="50" Visibility="Collapsed"></ProgressRing>
         <NavigationView x:Name="featuresNV" IsBackButtonVisible="Auto" IsBackEnabled="True" SelectionChanged="featuresNV_SelectionChanged" BackRequested="featuresNV_BackRequested" PaneDisplayMode="Auto" OpenPaneLength="200" VerticalAlignment="Bottom" HorizontalAlignment="Center" Visibility="Collapsed">
             <NavigationView.MenuItems>
                 <NavigationViewItem Icon="Home" Content="Home" Tag="HomePage" />

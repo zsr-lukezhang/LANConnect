@@ -181,6 +181,8 @@ namespace LANConnect
             // Debug 显示分行
             Debug.WriteLine("========================");
 
+            LoadingRing.Visibility = Visibility.Visible;
+
             // 判断地址是否为空
             if (serverURLBox.Text != string.Empty)
             {
@@ -238,9 +240,11 @@ namespace LANConnect
                         Debug.WriteLine(saveURLStatus);
                     }
                 }
+                LoadingRing.Visibility = Visibility.Collapsed;
             }
             else
             {
+                LoadingRing.Visibility = Visibility.Collapsed;
                 Debug.WriteLine("Server URL seems to be nothing");
                 return;
             }
@@ -251,13 +255,15 @@ namespace LANConnect
             using (HttpClient client = new HttpClient())
             {
                 // 设定 Header
+                // 一般的 accept: "application/json; charset=utf-8"
                 client.DefaultRequestHeaders.Add("accept", "application/json; charset=utf-8");
                 if (!string.IsNullOrEmpty(apiKey))
                 {
                     client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
                 }
 
-                // 设编码格式为 UTF-8
+                // 设内容为 UTF-8
+                // 一般的编码格式："application/json"
                 HttpContent httpContent = new StringContent(content, Encoding.UTF8, "application/json");
 
                 // 发送请求                
@@ -274,7 +280,40 @@ namespace LANConnect
                 }
             }
         }
+        
+        // RenewToken: 输入 服务器地址、Token 与 Refresh_Token，得到新的 Token 与 Refresh_Token。
+        // 可能不会使用，因为 UserPasswordLogin 够用了，而这个真的烦
+        public async Task<string> RenewToken(string serverURL, string refreshToken, string token)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    // 设定 Header
+                    client.DefaultRequestHeaders.Add("accept", "application/json; charset=utf-8");
 
+                    // 构建请求内容
+                    var requestBody = $"{{\"token\":\"{token}\",\"refresh_token\":\"{refreshToken}\"}}";
+                    HttpContent httpContent = new StringContent(requestBody, Encoding.UTF8, "application/json");
+
+                    // 发送请求
+                    HttpResponseMessage response = await client.PostAsync($"{serverURL}/api/token/renew", httpContent);
+
+                    // 确保请求成功
+                    response.EnsureSuccessStatusCode();
+
+                    // 返回响应内容
+                    return await response.Content.ReadAsStringAsync();
+                }
+            }
+            catch (Exception ex) 
+            {
+                Debug.WriteLine("This is RenewToken speaking");
+                Debug.WriteLine("Error. The error message is shown below:");
+                Debug.WriteLine(ex.Message);
+                return ($"Error: {ex.Message}");
+            }
+        }
 
         public async Task<object> GetRequestAsync(string url, string apiKey, string returnType)
         {
@@ -570,6 +609,8 @@ namespace LANConnect
                 Debug.WriteLine($"serverName: {serverName}");
                 string serverBio = JsonDecode(serverInfo, "description");
                 Debug.WriteLine($"serverBio: {serverBio}");
+                string serverVersion = (string)await GetRequestAsync($"{serverURL}/api/admin/system/version", "", "text");
+                Debug.WriteLine($"serverVersion: {serverVersion}");
 
                 // 获取当前用户的所有信息
                 string UserInfo = (string) await GetRequestAsync($"{serverURL}/api/user/me", Token, "text");
@@ -668,6 +709,22 @@ namespace LANConnect
                     Debug.WriteLine("The error message is shown below:");
                     Debug.WriteLine(ChangeOtherPages_Bio_Status);
                 }
+
+                // 更改服务器版本号
+                string ChangeOtherPages_Version_Status = await ChangeOtherPagesAsync("HomePage", "serverVersionTextBlock", "Text", $"Version: {serverVersion}");
+                if (ChangeOtherPages_Version_Status.StartsWith("Success"))
+                {
+                    Debug.WriteLine("This is setupServerWindow speaking");
+                    Debug.WriteLine("ChangeOtherPages returns Success");
+                }
+                else
+                {
+                    Debug.WriteLine("This is setupServerWindow speaking");
+                    Debug.WriteLine("ChangeOtherPages returns an error.");
+                    Debug.WriteLine("The error message is shown below:");
+                    Debug.WriteLine(ChangeOtherPages_Version_Status);
+                }
+
 
                 // 返回正确的状态
                 Debug.WriteLine("This is setupServerWindow speaking");
@@ -1155,13 +1212,17 @@ namespace LANConnect
 
         private async void AutoLoginPasswordButton_Click(object sender, RoutedEventArgs e)
         {
+            LoadingRing.Visibility = Visibility.Visible;
             await AutoLogin();
+            LoadingRing.Visibility = Visibility.Collapsed;
         }
 
 
         private async void AutoLoginServerButton_Click(object sender, RoutedEventArgs e)
         {
+            LoadingRing.Visibility = Visibility.Visible;
             await AutoLogin();
+            LoadingRing.Visibility = Visibility.Collapsed;
         }
     }
 }

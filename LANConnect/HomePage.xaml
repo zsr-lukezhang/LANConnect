@@ -17,10 +17,15 @@
             </StackPanel>
         </StackPanel>
         <StackPanel x:Name="SP_ServerName" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="100,120,100,100" Visibility="Visible">
-            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server:" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="25" HorizontalAlignment="Center" Margin="0,50,0,0"></TextBlock>
-            <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="0,10,0,0"></TextBlock>
-            <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="Normal" FontFamily="Cascadia Code" FontSize="15.5" HorizontalAlignment="Center" Margin="0,5,0,0"></TextBlock>
+            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="25" HorizontalAlignment="Center" Margin="0,70,0,0"></TextBlock>
+            <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="0,20,0,0"></TextBlock>
+            <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="SemiBold" FontFamily="Cascadia Code" FontSize="16.5" HorizontalAlignment="Center" Margin="0,15,0,0"></TextBlock>
         </StackPanel>
-        <TextBlock Text="Home Page" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="20"></TextBlock>
+        <StackPanel x:Name="SP_ServerInfo" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
+            <TextBlock x:Name="staticVoceChatAPITextBlock" Text="Based on VoceChat API"  FontFamily="Cascadia Code" FontWeight="Light" Margin="10"></TextBlock>
+            <TextBlock x:Name="serverVersionTextBlock" Text="Server Version" FontFamily="Cascadia Code" FontWeight="Light" Margin="10"></TextBlock>
+            <TextBlock x:Name="staticDeveloperTextBlock" Text="Developed with C# and ❤️ by Luke Zhang" FontFamily="Cascadia Code" FontWeight="Light" Margin="10"></TextBlock>
+        </StackPanel>
+        <TextBlock Text="Home Page" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="20" Visibility="Collapsed"></TextBlock>
     </Grid>
 </Page>

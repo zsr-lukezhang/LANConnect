@@ -29,5 +29,16 @@ namespace LANConnect
         {
             this.InitializeComponent();
         }
+
+        public async void ShowLoadingRing()
+        {
+            await LoadingRing_ContentDialog.ShowAsync();
+        }
+
+        public void HideLoadingRing()
+        {
+            LoadingRing_ContentDialog.Hide();
+        }
+
     }
 }

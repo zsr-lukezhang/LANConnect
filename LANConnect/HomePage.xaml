@@ -28,5 +28,11 @@
             <TextBlock x:Name="staticDeveloperTextBlock" Text="Developed with C# and ❤️ by Luke Zhang" FontFamily="Cascadia Code" FontWeight="Light" Margin="10"></TextBlock>
         </StackPanel>
         <TextBlock Text="Home Page" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="20" Visibility="Collapsed"></TextBlock>
+        <ProgressRing x:Name="LoadingRing" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50"  Height="50" Visibility="Collapsed"></ProgressRing>
+        <ContentDialog x:Name="LoadingRing_ContentDialog" Title="Loading, please wait..." IsPrimaryButtonEnabled="False" IsSecondaryButtonEnabled="False" Visibility="Collapsed">
+            <Grid>
+                <ProgressRing x:Name="ProgressRing" IsActive="True" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+        </ContentDialog>
     </Grid>
 </Page>

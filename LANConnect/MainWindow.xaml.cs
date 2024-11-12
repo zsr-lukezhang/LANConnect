@@ -70,7 +70,11 @@ namespace LANConnect
                 string userToken = await UserPasswordLogin(serverURL, userEmail, userPassword, "token");
                 if (userToken != null)
                 {
-                    string setupStatus = await setupServerWindow(serverURL, userToken, "false");
+                    string setupStatus = await setupServerWindow(serverURL, userToken, "false", true);
+                    Debug.WriteLine("AutoLogin setupServerWindow completed");
+
+                    // string setupStatus = "Successful";
+
                     if (setupStatus.StartsWith("Success"))
                     {
                         return 200;
@@ -86,6 +90,8 @@ namespace LANConnect
                 }
             }
         }
+
+        public bool FirstStarted = false;
 
         // featuresNV: 主面板。
         // SelectionChanged: 选中项更改。
@@ -109,12 +115,29 @@ namespace LANConnect
                         // 各个项的 Tag
                         case "HomePage":
                             contentFrame.Navigate(typeof(HomePage));
-                            string serverURL = await ReadFileAsync("User/serverURL.txt");
-                            string Email = await ReadFileAsync("User/userEmail.txt");
-                            string Password = await ReadFileAsync("User/userPassword.txt");
-                            string userToken = await UserPasswordLogin(serverURL, Email, Password, "token");
-                            await SaveFileAsync(userToken, "user/userToken.txt");
-                            await setupServerWindow(serverURL, userToken, "false");
+                            // string ShowLoadingRingStatus = await InOtherPagesAsync("HomePage", "ShowLoadingRing");
+                            // Debug.WriteLine(ShowLoadingRingStatus);
+                            if (FirstStarted != true)
+                            {
+                                string showLoadingRingStatus = await ChangeOtherPagesAsync("HomePage", "LoadingRing", "Visibility", Visibility.Visible);
+                                Debug.WriteLine(showLoadingRingStatus);
+                                string serverURL = await ReadFileAsync("User/serverURL.txt");
+                                string Email = await ReadFileAsync("User/userEmail.txt");
+                                string Password = await ReadFileAsync("User/userPassword.txt");
+                                string userToken = await UserPasswordLogin(serverURL, Email, Password, "token");
+                                await SaveFileAsync(userToken, "user/userToken.txt");
+                                await setupServerWindow(serverURL, userToken, "false", false);
+                                string hideLoadingRingStatus = await ChangeOtherPagesAsync("HomePage", "LoadingRing", "Visibility", Visibility.Collapsed);
+                                Debug.WriteLine(hideLoadingRingStatus);
+                            }
+                            else
+                            {
+                                FirstStarted = false;
+                                Debug.WriteLine("FirstStart = true dectected.");
+                                Debug.WriteLine("Skipped featuresNV_SelectionChanged except Navigate");
+                            }
+                            // string HideLoadingRingStatus = await InOtherPagesAsync("HomePage", "HideLoadingRing");
+                            // Debug.WriteLine(HideLoadingRingStatus);
                             break;
                         case "PeoplePage":
                             contentFrame.Navigate(typeof(PeoplePage));
@@ -172,7 +195,7 @@ namespace LANConnect
                     {
                         string Token = await ReadFileAsync("User/userToken.txt");
                         string serverURL = await ReadFileAsync("User/serverURL.txt");
-                        await setupServerWindow(serverURL, Token, "false");
+                        await setupServerWindow(serverURL, Token, "false", false);
                     }
                     break;
                 }
@@ -191,6 +214,10 @@ namespace LANConnect
             {
 
                 // 正常时
+
+                // 显示 serverURL
+                string serverURL = await ReadFileAsync("User/serverURL.txt");
+                serverURLTextBlock.Text = serverURL;
 
                 // 设定变量
                 string serverName = "";
@@ -524,11 +551,13 @@ namespace LANConnect
         {
             try
             {
+                LoadingRing.Visibility = Visibility.Visible;
+
                 // 获取 Token
                 string Token = await UserPasswordLogin(serverURLBox.Text, userEmailBox.Text, userPasswordBox.Password, "token");
 
                 // 调用 setupServerWindow
-                string setupStatus = await setupServerWindow(serverURLBox.Text, Token, "true");
+                string setupStatus = await setupServerWindow(serverURLBox.Text, Token, "true", true);
                 if (setupStatus.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is userPasswordLoginButton Speaking");
@@ -541,9 +570,11 @@ namespace LANConnect
                     Debug.WriteLine("The error message is shown below:");
                     Debug.WriteLine(setupStatus);
                 }
+                LoadingRing.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
+                LoadingRing.Visibility = Visibility.Collapsed;
                 Debug.WriteLine("This is userPasswordLoginButton speaking");
                 Debug.WriteLine("Error: " + ex);
             }
@@ -602,10 +633,18 @@ namespace LANConnect
         }
 
 
-        private async Task<string> setupServerWindow(string serverURL, string Token, string Save)
+        private async Task<string> setupServerWindow(string serverURL, string Token, string Save, bool FirstTime)
         {
             try
             {
+                if (FirstTime == true)
+                {
+                    FirstStarted = true;
+                }
+                else
+                {
+                    FirstStarted = false;
+                }
                 // 获取服务器所有信息
                 string serverInfo = (string) await GetRequestAsync($"{serverURL}/api/admin/system/organization", "", "text");
                 string serverName = JsonDecode(serverInfo, "name");
@@ -652,15 +691,15 @@ namespace LANConnect
                     Debug.WriteLine($"saveEmailStatus:{saveEmailStatus}");
                     string savePasswordStatus = await SaveFileAsync(userPasswordBox.Password, "User/userPassword.txt");
                     Debug.WriteLine($"savePasswordStatus:{savePasswordStatus}");
-
                 }
                 else
                 {
                     Debug.WriteLine($"Skipped save email & password because the string Save = {Save}");
-                }
+                }                
 
                 // 更改主面版的主页设置
                 string NVSetPageStatus = NVSetPage(featuresNV, "HomePage");
+
                 if (NVSetPageStatus.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is setupServerWindow speaking");
@@ -768,7 +807,6 @@ namespace LANConnect
             return decodedTime.ToString("yyyy/MM/dd HH:mm:ss.fff");
         }
 
-
         private string RewriteDataTemplate(Page targetPage, string jsonContent)
         {
             try
@@ -848,10 +886,9 @@ namespace LANConnect
                         }
                         else
                         {
-                            var fullPageName = $"LANConnect.Pages.{pageName}";
+                            var fullPageName = $"{pageName}";
                             pageType = Type.GetType(fullPageName);
                         }
-
                         if (pageType == null)
                         {
                             Debug.WriteLine("This is NVSetPage speaking");
@@ -918,6 +955,45 @@ namespace LANConnect
                 }
             }
 
+            return $"Page {pageName} not found in featuresNV.";
+        }
+
+
+        private async Task<string> InOtherPagesAsync(string pageName, string methodName)
+        {
+            // 遍历 featuresNV 的 MenuItems 以找到对应的页面
+            foreach (var item in featuresNV.MenuItems)
+            {
+                if (item is NavigationViewItem navItem && navItem.Tag.ToString() == pageName)
+                {
+                    // 获取页面类型
+                    var pageType = Type.GetType(pageName);
+                    if (pageType == null)
+                    {
+                        return $"Page type {pageName} not found.";
+                    }
+
+                    // 确保 contentFrame 中已经加载了正确的页面
+                    if (contentFrame.Content is Page page && page.GetType() == pageType)
+                    {
+                        // 获取方法信息
+                        var methodInfo = pageType.GetMethod(methodName);
+                        if (methodInfo == null)
+                        {
+                            return $"Method {methodName} not found on page {pageName}.";
+                        }
+
+                        // 调用方法
+                        methodInfo.Invoke(page, null);
+
+                        return $"Successfully called {methodName} on {pageName}.";
+                    }
+                    else
+                    {
+                        return $"Page {pageName} not found in contentFrame.";
+                    }
+                }
+            }
             return $"Page {pageName} not found in featuresNV.";
         }
 
@@ -1052,14 +1128,8 @@ namespace LANConnect
                 }
                 else
                 {
-                    string filePath = @"Assets\User\default.png";
-                    BitmapImage Avatar = await GetImageAsync(filePath);
-                    if (Avatar == null)
-                    {
-                        Debug.WriteLine("This is HandleSearchButtonClick speaking");
-                        Debug.WriteLine("Get a null which means error from GetImageAsync");
-                    }
-                    string ChangeOtherPagesAvatarStatus = await ChangeOtherPagesAsync("PeoplePage", "SeletedUserImage", "Source", Avatar);
+                    BitmapImage UserAvatar = await GetRequestImageAsync("https://lcnt-pictures.lukezhang.win/UserAvatar/default.png", "");
+                    string ChangeOtherPagesAvatarStatus = await ChangeOtherPagesAsync("PeoplePage", "SeletedUserImage", "Source", UserAvatar);
                     Debug.WriteLine($"Change Avatar Status: {ChangeOtherPagesAvatarStatus}");
                 }
 
@@ -1087,7 +1157,7 @@ namespace LANConnect
             }
             catch(Exception ex)
             {
-                Debug.WriteLine("This isGetImageAsync speaking");
+                Debug.WriteLine("This is GetImageAsync speaking");
                 Debug.WriteLine("Error.The error message is shown below:");
                 Debug.WriteLine(ex.Message);
                 return null;

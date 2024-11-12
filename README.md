@@ -1,7 +1,8 @@
 # LANConnect
 > Still ~~sleeping~~ developing, no releases.
 ## Features
-- [X] Join a VoceChat server  
+- [X] Join a VoceChat server
+- [X] Find a user
 - [ ] Send Messages  
 - [ ] Send Pictures  
 - [ ] Send Files  

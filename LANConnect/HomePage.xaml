@@ -20,6 +20,7 @@
             <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="25" HorizontalAlignment="Center" Margin="0,70,0,0"></TextBlock>
             <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="0,20,0,0"></TextBlock>
             <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="SemiBold" FontFamily="Cascadia Code" FontSize="16.5" HorizontalAlignment="Center" Margin="0,15,0,0"></TextBlock>
+            <TextBlock x:Name="serverURLTextBlock" Text="https://vocechat.example.com" FontFamily="Cascadia Code" FontWeight="Light" HorizontalAlignment="Center" Margin="10,15,10,10"></TextBlock>
         </StackPanel>
         <StackPanel x:Name="SP_ServerInfo" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
             <TextBlock x:Name="staticVoceChatAPITextBlock" Text="Based on VoceChat API"  FontFamily="Cascadia Code" FontWeight="Light" Margin="10"></TextBlock>

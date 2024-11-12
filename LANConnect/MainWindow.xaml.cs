@@ -109,8 +109,11 @@ namespace LANConnect
                         // 各个项的 Tag
                         case "HomePage":
                             contentFrame.Navigate(typeof(HomePage));
-                            string userToken = await ReadFileAsync("User/userToken.txt");
                             string serverURL = await ReadFileAsync("User/serverURL.txt");
+                            string Email = await ReadFileAsync("User/userEmail.txt");
+                            string Password = await ReadFileAsync("User/userPassword.txt");
+                            string userToken = await UserPasswordLogin(serverURL, Email, Password, "token");
+                            await SaveFileAsync(userToken, "user/userToken.txt");
                             await setupServerWindow(serverURL, userToken, "false");
                             break;
                         case "PeoplePage":
@@ -711,7 +714,7 @@ namespace LANConnect
                 }
 
                 // 更改服务器版本号
-                string ChangeOtherPages_Version_Status = await ChangeOtherPagesAsync("HomePage", "serverVersionTextBlock", "Text", $"Version: {serverVersion}");
+                string ChangeOtherPages_Version_Status = await ChangeOtherPagesAsync("HomePage", "serverVersionTextBlock", "Text", $"VoceChat Server Version: {serverVersion}");
                 if (ChangeOtherPages_Version_Status.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is setupServerWindow speaking");
@@ -725,6 +728,20 @@ namespace LANConnect
                     Debug.WriteLine(ChangeOtherPages_Version_Status);
                 }
 
+                // 更改服务器 URL
+                string ChangeOtherPages_URL_Status = await ChangeOtherPagesAsync("HomePage", "serverURLTextBlock", "Text", $"Using server {serverURL}");
+                if (ChangeOtherPages_URL_Status.StartsWith("Success"))
+                {
+                    Debug.WriteLine("This is setupServerWindow speaking");
+                    Debug.WriteLine("ChangeOtherPages returns Success");
+                }
+                else
+                {
+                    Debug.WriteLine("This is setupServerWindow speaking");
+                    Debug.WriteLine("ChangeOtherPages returns an error.");
+                    Debug.WriteLine("The error message is shown below:");
+                    Debug.WriteLine(ChangeOtherPages_URL_Status);
+                }
 
                 // 返回正确的状态
                 Debug.WriteLine("This is setupServerWindow speaking");

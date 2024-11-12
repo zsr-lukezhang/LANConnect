@@ -9,6 +9,28 @@
     mc:Ignorable="d">
 
     <Grid>
+        <StackPanel Name="SP_UserSearch" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10" Width="400">
+            <StackPanel x:Name="SP_Search" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10" Width="300" Height="100">
+                <TextBox x:Name="SearchTextBox" Header="Type in a UID:" PlaceholderText="UID" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="60" ></TextBox>
+                <Button x:Name="SearchButton" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,0,0,0" Width="80" Height="60" Click="SearchButton_Click">
+                    <SymbolIcon Symbol="Find"></SymbolIcon>
+                </Button>
+            </StackPanel>
+            <StackPanel x:Name="SP_SelectedUser" Orientation="Vertical" HorizontalAlignment="Left" Width="300" Margin="20">
+                <StackPanel x:Name="SP_SelectedUserInfo" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left" Width="300" Margin="0">
+                    <Image x:Name="SeletedUserImage" Source="/Assets/User/default.png" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="200"></Image>
+                    <TextBlock x:Name="SelectedUserNameTextBlock" Text="User Name" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="10" FontFamily="Cascadia Code" FontSize="20" FontWeight="SemiBold"></TextBlock>
+                    <TextBlock x:Name="SelectedUserEmailTextBlock" Text="Email" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="5" FontFamily="Cascadia Code" FontSize="16.5" FontWeight="Normal"></TextBlock>
+                    <TextBlock x:Name="SelectedUserUIDTextBlock" Text="UID" HorizontalAlignment="Center" Margin="5" FontFamily="Cascadia Code" FontSize="16.5" FontWeight="Light"></TextBlock>
+                </StackPanel>
+                <StackPanel x:Name="SP_SelectedUserOperations" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+                    <Button x:Name="MessageSelectedUserButton" Content="Message" Width="85" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"></Button>
+                    <Button x:Name="CallSelectedUserButton" Content="Call" Width="85" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"></Button>
+                    <Button x:Name="MoreSelectedUserButton" Content="More" Width="85" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"></Button>
+                </StackPanel>
+            </StackPanel>
+
+        </StackPanel>
         <TextBlock Text="People Page" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="20"></TextBlock>
     </Grid>
 </Page>

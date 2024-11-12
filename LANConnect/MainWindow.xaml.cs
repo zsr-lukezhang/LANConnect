@@ -22,6 +22,9 @@ using Windows.Foundation.Collections;
 using Microsoft.UI.Xaml.Markup;
 using System.Reflection;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Media.Imaging;
+using Windows.ApplicationModel;
+using Windows.Storage;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -51,8 +54,38 @@ namespace LANConnect
         private void MainWindow_SizeChanged(object sender, WindowSizeChangedEventArgs e)
         {
             UpdateFeaturesNVSize();
-        }
+        } 
 
+        private async Task<int> AutoLogin()
+        {
+            string serverURL = await ReadFileAsync("User/serverURL.txt");
+            string userEmail = await ReadFileAsync("User/userEmail.txt");
+            string userPassword = await ReadFileAsync("User/userPassword.txt");
+            if (serverURL.StartsWith("Error") || userEmail.StartsWith("Error") || userPassword.StartsWith("Error"))
+            {
+                return 404;
+            }
+            else
+            {
+                string userToken = await UserPasswordLogin(serverURL, userEmail, userPassword, "token");
+                if (userToken != null)
+                {
+                    string setupStatus = await setupServerWindow(serverURL, userToken, "false");
+                    if (setupStatus.StartsWith("Success"))
+                    {
+                        return 200;
+                    }
+                    else
+                    {
+                        return 500;
+                    }
+                }
+                else
+                {
+                    return 401;
+                }
+            }
+        }
 
         // featuresNV: 主面板。
         // SelectionChanged: 选中项更改。
@@ -77,7 +110,8 @@ namespace LANConnect
                         case "HomePage":
                             contentFrame.Navigate(typeof(HomePage));
                             string userToken = await ReadFileAsync("User/userToken.txt");
-                            await setupServerWindow(userToken);
+                            string serverURL = await ReadFileAsync("User/serverURL.txt");
+                            await setupServerWindow(serverURL, userToken, "false");
                             break;
                         case "PeoplePage":
                             contentFrame.Navigate(typeof(PeoplePage));
@@ -134,7 +168,8 @@ namespace LANConnect
                     if (navItem.Tag.ToString().Equals("HomePage"))
                     {
                         string Token = await ReadFileAsync("User/userToken.txt");
-                        await setupServerWindow(Token);
+                        string serverURL = await ReadFileAsync("User/serverURL.txt");
+                        await setupServerWindow(serverURL, Token, "false");
                     }
                     break;
                 }
@@ -241,11 +276,10 @@ namespace LANConnect
         }
 
 
-        public async Task<string> GetRequestAsync(string url, string apiKey)
+        public async Task<object> GetRequestAsync(string url, string apiKey, string returnType)
         {
             using (HttpClient client = new HttpClient())
             {
-
                 // 设定 Header
                 client.DefaultRequestHeaders.Add("accept", "*/*");
                 client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
@@ -256,17 +290,66 @@ namespace LANConnect
                 // 对是否成功做出判断
                 if (response.IsSuccessStatusCode)
                 {
-                    // 返回获得的内容
-                    return await response.Content.ReadAsStringAsync();
+                    if (returnType == "text")
+                    {
+                        // 返回获得的内容
+                        return await response.Content.ReadAsStringAsync();
+                    }
+                    else
+                    {
+                        // 返回状态码
+                        return (int)response.StatusCode;
+                    }
                 }
                 else
                 {
-                    // 返回空文本
-                    return string.Empty;
+                    if (returnType == "text")
+                    {
+                        // 返回空文本
+                        return string.Empty;
+                    }
+                    else
+                    {
+                        // 返回状态码
+                        return (int)response.StatusCode;
+                    }
                 }
             }
         }
 
+        public async Task<BitmapImage> GetRequestImageAsync(string url, string apiKey)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                // 设定 Header
+                client.DefaultRequestHeaders.Add("accept", "image/*");
+                client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+
+                // 请求 URL
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                // 对是否成功做出判断
+                if (response.IsSuccessStatusCode)
+                {
+                    // 获取图像的字节数组
+                    byte[] imageData = await response.Content.ReadAsByteArrayAsync();
+
+                    // 将字节数组转换为 MemoryStream
+                    using (MemoryStream ms = new MemoryStream(imageData))
+                    {
+                        // 创建 BitmapImage 对象
+                        BitmapImage bitmapImage = new BitmapImage();
+                        await bitmapImage.SetSourceAsync(ms.AsRandomAccessStream());
+                        return bitmapImage;
+                    }
+                }
+                else
+                {
+                    // 返回 null 表示请求失败
+                    return null;
+                }
+            }
+        }
 
         private async Task<string> getServerName(string URL, string type)
         {
@@ -277,7 +360,7 @@ namespace LANConnect
                 string apiKey = "";
 
                 // 调用与设定返回值
-                string response = await GetRequestAsync(url, apiKey);
+                string response = (string) await GetRequestAsync(url, apiKey, "text");
 
                 // 处理响应内容
                 Debug.WriteLine("This is getServerName speaking");
@@ -400,10 +483,10 @@ namespace LANConnect
             try
             {
                 // 获取 Token
-                string Token = await UserPasswordLogin(userEmailBox.Text, userPasswordBox.Password, "token");
+                string Token = await UserPasswordLogin(serverURLBox.Text, userEmailBox.Text, userPasswordBox.Password, "token");
 
                 // 调用 setupServerWindow
-                string setupStatus = await setupServerWindow(Token);
+                string setupStatus = await setupServerWindow(serverURLBox.Text, Token, "true");
                 if (setupStatus.StartsWith("Success"))
                 {
                     Debug.WriteLine("This is userPasswordLoginButton Speaking");
@@ -424,7 +507,7 @@ namespace LANConnect
             }
         }
 
-        private async Task<string> UserPasswordLogin(string Email, string Password, string Type)
+        private async Task<string> UserPasswordLogin(string serverURL, string Email, string Password, string Type)
         {
             // 设定 JSON 原内容
             var Json = $@"{{
@@ -438,7 +521,7 @@ namespace LANConnect
 }}";
 
             // 调用 PostRequestAsync 并设定变量
-            string URL = serverURLBox.Text + "/api/token/login";
+            string URL = serverURL + "/api/token/login";
 
             // HTTP Status Code
             int Code = (int)await PostRequestAsync(URL, "", Json, "int");
@@ -477,17 +560,19 @@ namespace LANConnect
         }
 
 
-        private async Task<string> setupServerWindow(string Token)
+        private async Task<string> setupServerWindow(string serverURL, string Token, string Save)
         {
             try
             {
                 // 获取服务器所有信息
-                string serverInfo = await GetRequestAsync($"{serverURLBox.Text}/api/admin/system/organization", Token);
+                string serverInfo = (string) await GetRequestAsync($"{serverURL}/api/admin/system/organization", "", "text");
                 string serverName = JsonDecode(serverInfo, "name");
+                Debug.WriteLine($"serverName: {serverName}");
                 string serverBio = JsonDecode(serverInfo, "description");
+                Debug.WriteLine($"serverBio: {serverBio}");
 
                 // 获取当前用户的所有信息
-                string UserInfo = await GetRequestAsync($"{serverURLBox.Text}/api/user/me", Token);
+                string UserInfo = (string) await GetRequestAsync($"{serverURL}/api/user/me", Token, "text");
                 Debug.WriteLine("This is setupServerWindow speaking");
                 Debug.WriteLine("UserInfo:");
                 Debug.WriteLine(UserInfo);
@@ -516,12 +601,19 @@ namespace LANConnect
                 string CreateBy = JsonDecode(UserInfo, "create_by");
                 Debug.WriteLine("CreateBy: " + CreateBy);
 
-                // 保存用户名与密码
-                string saveEmailStatus = await SaveFileAsync(Email, "User/userEmail.txt");
-                Debug.WriteLine($"saveEmailStatus:{saveEmailStatus}");
-                string savePasswordStatus = await SaveFileAsync(userPasswordBox.Password, "User/userPassword.txt");
-                Debug.WriteLine($"savePasswordStatus:{savePasswordStatus}");
+                if (Save == "true")
+                {
+                    // 保存用户名与密码
+                    string saveEmailStatus = await SaveFileAsync(Email, "User/userEmail.txt");
+                    Debug.WriteLine($"saveEmailStatus:{saveEmailStatus}");
+                    string savePasswordStatus = await SaveFileAsync(userPasswordBox.Password, "User/userPassword.txt");
+                    Debug.WriteLine($"savePasswordStatus:{savePasswordStatus}");
 
+                }
+                else
+                {
+                    Debug.WriteLine($"Skipped save email & password because the string Save = {Save}");
+                }
 
                 // 更改主面版的主页设置
                 string NVSetPageStatus = NVSetPage(featuresNV, "HomePage");
@@ -743,6 +835,7 @@ namespace LANConnect
                         propertyInfo.SetValue(element, value);
 
                         return $"Successfully changed {property} of {name} on {pageName} to {value}.";
+
                     }
                     else
                     {
@@ -753,7 +846,6 @@ namespace LANConnect
 
             return $"Page {pageName} not found in featuresNV.";
         }
-
 
 
         private string RefreshPage(Page page)
@@ -823,6 +915,253 @@ namespace LANConnect
             {
                 return $"Error: {ex.Message}";
             }
+        }
+
+        private async Task<string> SendMessageTo(string type, string id)
+        {
+            return ("");
+        }
+
+
+        // 重要方法：OtherPagesEvents()
+        // 分发任务
+        // 输入：标识符
+        // 成功输出得到的信息，失败输出Error
+        public async Task<string> OtherPagesEvents(string eventName)
+        {
+            switch (eventName)
+            {
+                case "SearchButtonClicked":
+                    return await HandleSearchButtonClickAsync();
+                // 你可以在这里添加更多的事件处理
+                default:
+                    return "Error. Unknown event: " + eventName;
+            }
+        }
+
+        private async Task<string> HandleSearchButtonClickAsync()
+        {
+            try
+            {
+                Debug.WriteLine("This is HandleSearchButtonClickAsync speaking");
+                string serverURL = await ReadFileAsync("User/serverURL.txt");
+                Debug.WriteLine($"serverURL: {serverURL}");
+                string userToken = await ReadFileAsync("User/userToken.txt");
+                Debug.WriteLine($"userToken: {userToken}");
+                string ListUsersAPIURL = $"{serverURL}/api/user";
+                Debug.WriteLine($"ListUserAPIURL: {ListUsersAPIURL}");
+                string UserList = (string) await GetRequestAsync(ListUsersAPIURL, userToken, "text");
+                Debug.WriteLine($"UserList: {UserList}");
+                string UID = await GetOtherPages("PeoplePage", "SearchTextBox", "Text");
+                Debug.WriteLine($"UID: {UID}");
+
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserUIDTextBlock", "Text", "#"+UID);
+
+                string UserName = await JsonGetPropertyWithKey(UserList, "uid", UID, "name");
+                Debug.WriteLine($"UserName: {UserName}");
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserNameTextBlock", "Text", UserName);
+
+                string UserEmail = await JsonGetPropertyWithKey(UserList, "uid", UID, "email");
+                Debug.WriteLine($"UserEmail: {UserEmail}");
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserEmailTextBlock", "Text", UserEmail);
+
+                string UserAvatarAPIURL = $"{serverURL}/api/resource/avatar?uid={UID}";
+                Debug.WriteLine($"ListUserAPIURL: {UserAvatarAPIURL}");
+                
+                int AvatarStatus = (int) await GetRequestAsync(UserAvatarAPIURL,userToken, "int");
+                if (AvatarStatus == 200)
+                {
+                    BitmapImage UserAvatar = await GetRequestImageAsync(UserAvatarAPIURL, userToken);
+                    string ChangeOtherPagesAvatarStatus = await ChangeOtherPagesAsync("PeoplePage", "SeletedUserImage", "Source", UserAvatar);
+                    Debug.WriteLine($"Change Avatar Status: {ChangeOtherPagesAvatarStatus}");
+
+                }
+                else
+                {
+                    string filePath = @"Assets\User\default.png";
+                    BitmapImage Avatar = await GetImageAsync(filePath);
+                    if (Avatar == null)
+                    {
+                        Debug.WriteLine("This is HandleSearchButtonClick speaking");
+                        Debug.WriteLine("Get a null which means error from GetImageAsync");
+                    }
+                    string ChangeOtherPagesAvatarStatus = await ChangeOtherPagesAsync("PeoplePage", "SeletedUserImage", "Source", Avatar);
+                    Debug.WriteLine($"Change Avatar Status: {ChangeOtherPagesAvatarStatus}");
+                }
+
+                return "Success: Search button click handled";
+            }
+            catch(Exception ex)
+            {
+                return ($"Error:{ex.Message}");
+            }
+        }
+
+        private async Task<BitmapImage> GetImageAsync(string relativePath)
+        {
+            try
+            {
+                StorageFolder localFolder = ApplicationData.Current.LocalFolder;
+                StorageFile file = await localFolder.GetFileAsync(relativePath);
+                using (var stream = await file.OpenAsync(FileAccessMode.Read))
+                {
+                    BitmapImage image = new BitmapImage();
+                    await image.SetSourceAsync(stream);
+                    return image;
+                }
+
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine("This isGetImageAsync speaking");
+                Debug.WriteLine("Error.The error message is shown below:");
+                Debug.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+        private string ConvertUtf8ToBase64(string utf8String)
+        {
+            byte[] utf8Bytes = System.Text.Encoding.UTF8.GetBytes(utf8String);
+            return Convert.ToBase64String(utf8Bytes);
+        }
+
+        public BitmapImage StringToImage(string base64String)
+        {
+            try
+            {
+                // 移除可能的无效字符
+                base64String = base64String.Trim().Replace(" ", "").Replace("\r", "").Replace("\n", "");
+
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+                using (var ms = new MemoryStream(imageBytes))
+                {
+                    var image = new BitmapImage();
+                    ms.Position = 0;
+                    image.SetSourceAsync(ms.AsRandomAccessStream()).AsTask().Wait();
+                    return image;
+                }
+            }
+            catch (FormatException ex)
+            {
+                Debug.WriteLine($"Error: Invalid Base64 string. {ex.Message}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error: {ex.Message}");
+                return null;
+            }
+        }
+
+        private void SetImageSource(Image imageControl, string base64String)
+        {
+            var imageHelper = new MainWindow();
+            BitmapImage bitmapImage = imageHelper.StringToImage(base64String);
+
+            if (bitmapImage != null)
+            {
+                imageControl.Source = bitmapImage;
+                Debug.WriteLine("Image converted and set successfully.");
+            }
+            else
+            {
+                Debug.WriteLine("Failed to convert string to image.");
+            }
+        }
+
+        // 重要方法：JsonGetPropertyWithKey()
+        // 输入 JSON 原内容，用于辨别的属性名称，用于辨别的属性值，要得到的属性值的属性名称
+        // 输出 得到的属性值
+
+        private async Task<string> JsonGetPropertyWithKey(string jsonContent, string propertyName, string key, string getPropertyName)
+        {
+            try
+            {
+                var jsonArray = JsonDocument.Parse(jsonContent).RootElement;
+
+                foreach (var element in jsonArray.EnumerateArray())
+                {
+                    if (element.TryGetProperty(propertyName, out JsonElement value) && value.ToString() == key)
+                    {
+                        if (element.TryGetProperty(getPropertyName, out JsonElement result))
+                        {
+                            return await Task.FromResult(result.ToString());
+                        }
+                    }
+                }
+
+                return await Task.FromResult<string>(null);
+            }
+            catch (Exception ex)
+            {
+                return $"Error: {ex.Message}";
+            }
+        }
+
+        // 重要方法：GetOtherPages()
+
+        private async Task<string> GetOtherPages(string pageName, string elementName, string propertyName)
+        {
+            try
+            {
+                // 遍历 featuresNV 的 MenuItems 以找到对应的页面
+                foreach (var item in featuresNV.MenuItems)
+                {
+                    if (item is NavigationViewItem navItem && navItem.Tag.ToString() == pageName)
+                    {
+                        // 确保 contentFrame 中已经加载了正确的页面
+                        if (featuresNV.Content is Frame contentFrame)
+                        {
+                            if (contentFrame.Content is Page page && page.GetType().Name == pageName)
+                            {
+                                // 查找指定的元素
+                                var element = page.FindName(elementName) as FrameworkElement;
+                                if (element == null)
+                                {
+                                    return $"Error: Element {elementName} not found on page {pageName}.";
+                                }
+
+                                // 获取属性信息
+                                var propertyInfo = element.GetType().GetProperty(propertyName);
+                                if (propertyInfo == null)
+                                {
+                                    return $"Error: Property {propertyName} not found on element {elementName}.";
+                                }
+
+                                // 获取属性值
+                                var value = propertyInfo.GetValue(element)?.ToString();
+                                return value ?? $"Error: Property value is null for {propertyName} on element {elementName}.";
+                            }
+                            else
+                            {
+                                return $"Error: Loaded page is {contentFrame.Content.GetType().Name}, expected {pageName}.";
+                            }
+                        }
+                        else
+                        {
+                            return $"Error: Content is not a Frame, it is {featuresNV.Content.GetType().Name}.";
+                        }
+                    }
+                }
+
+                return $"Error: Page {pageName} not found in featuresNV.";
+            }
+            catch (Exception ex)
+            {
+                return $"Error: {ex.Message}";
+            }
+        }
+
+        private async void AutoLoginPasswordButton_Click(object sender, RoutedEventArgs e)
+        {
+            await AutoLogin();
+        }
+
+
+        private async void AutoLoginServerButton_Click(object sender, RoutedEventArgs e)
+        {
+            await AutoLogin();
         }
     }
 }

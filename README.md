@@ -16,8 +16,8 @@ or use **`Auto Login`**!
 **`Auto Login`** is developed for **convenience of ~~developers~~ our users** ~~just for debugging~~
 ![Auto Login](https://github.com/user-attachments/assets/c0f7e89b-a2f1-413c-b71c-010587939c11)
 ![Welcome to server](https://github.com/user-attachments/assets/b9a71f14-9ac0-4352-963b-dd448ac6de42)
-![Read a user's public profile](https://github.com/user-attachments/assets/3fc3808a-65c5-4fae-afc8-6388d25bb40b)
-![Updating server information when navigating back!](https://github.com/user-attachments/assets/139327e1-1fa1-4126-b492-31434282ef52)
+![Read a user's public profile](https://github.com/user-attachments/assets/067f143a-a75e-490a-9744-59c2010dc7ea)
+![Refreshing server information when navigating back!](https://github.com/user-attachments/assets/139327e1-1fa1-4126-b492-31434282ef52)
 ## Download
  No Downloads Available.
 ## Core

@@ -11,9 +11,9 @@
 - [ ] Admin features
 ## Screenshots
 ![Type in a server URL](https://github.com/user-attachments/assets/f563e3f9-9d8e-4280-bbe3-d62ef7f9d930)
-![Type in your email and password](https://github.com/user-attachments/assets/9772253c-0814-4156-9c3f-620d0b9ed6ad)
-or use `Auto Login`!  
-`Auto Login` is developed for **convenience of ~~developers~~ our users** ~~just for debugging~~
+![Type in email and password](https://github.com/user-attachments/assets/f22f6256-856f-448b-8335-80197786d5b9)
+or use **`Auto Login`**!  
+**`Auto Login`** is developed for **convenience of ~~developers~~ our users** ~~just for debugging~~
 ![Auto Login](https://github.com/user-attachments/assets/c0f7e89b-a2f1-413c-b71c-010587939c11)
 ![Welcome to server](https://github.com/user-attachments/assets/b9a71f14-9ac0-4352-963b-dd448ac6de42)
 ![Read a user's public profile](https://github.com/user-attachments/assets/3fc3808a-65c5-4fae-afc8-6388d25bb40b)

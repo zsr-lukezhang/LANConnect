@@ -11,14 +11,18 @@
 - [ ] Admin features
 ## Screenshots
 ![Type in a server URL](https://github.com/user-attachments/assets/f563e3f9-9d8e-4280-bbe3-d62ef7f9d930)
-![Type in your email and password](https://github.com/user-attachments/assets/9772253c-0814-4156-9c3f-620d0b9ed6ad)
-![Welcome to server!](https://github.com/user-attachments/assets/7ec40a85-2e9b-4bdf-81d5-10a679f8c00d)
-![Read a user's pubilc profile](https://github.com/user-attachments/assets/ba52ec29-f047-42cf-9000-23ee1acaf3a9)
+![Type in email and password](https://github.com/user-attachments/assets/f22f6256-856f-448b-8335-80197786d5b9)
+or use **`Auto Login`**!  
+**`Auto Login`** is developed for **convenience of ~~developers~~ our users** ~~just for debugging~~
+![Auto Login](https://github.com/user-attachments/assets/c0f7e89b-a2f1-413c-b71c-010587939c11)
+![Welcome to server](https://github.com/user-attachments/assets/b9a71f14-9ac0-4352-963b-dd448ac6de42)
+![Read a user's public profile](https://github.com/user-attachments/assets/067f143a-a75e-490a-9744-59c2010dc7ea)
+![Refreshing server information when navigating back!](https://github.com/user-attachments/assets/139327e1-1fa1-4126-b492-31434282ef52)
 ## Download
  No Downloads Available.
 ## Core
-This software is based on VoceChat API.
-VoceChat official repo:
+This software is based on VoceChat API.  
+VoceChat official repo:  
 [Privoce/vocechat-server-rust](https://github.com/Privoce/vocechat-server-rust)
 ## Star History
 > Although this repo doesn't have any stars, `Star History` is still here.

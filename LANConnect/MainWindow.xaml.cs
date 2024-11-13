@@ -1,3 +1,9 @@
+// ======================== LANConnect by Luke Zhang ========================
+//         这个项目使用 MainWindow.xaml.cs 处理所有后端 以求更容易更新代码
+// =========================== Contribution Notes ===========================
+//                                 可用的方法：
+//                             自己看，不想写了 (?)
+
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -58,6 +64,8 @@ namespace LANConnect
 
         private async Task<int> AutoLogin()
         {
+            // 禁用元素以防更改
+
             string serverURL = await ReadFileAsync("User/serverURL.txt");
             string userEmail = await ReadFileAsync("User/userEmail.txt");
             string userPassword = await ReadFileAsync("User/userPassword.txt");
@@ -115,6 +123,7 @@ namespace LANConnect
                         // 各个项的 Tag
                         case "HomePage":
                             contentFrame.Navigate(typeof(HomePage));
+                            // 舍去 ContentDialog
                             // string ShowLoadingRingStatus = await InOtherPagesAsync("HomePage", "ShowLoadingRing");
                             // Debug.WriteLine(ShowLoadingRingStatus);
                             if (FirstStarted != true)
@@ -136,6 +145,7 @@ namespace LANConnect
                                 Debug.WriteLine("FirstStart = true dectected.");
                                 Debug.WriteLine("Skipped featuresNV_SelectionChanged except Navigate");
                             }
+                            // 舍去 ContentDialog
                             // string HideLoadingRingStatus = await InOtherPagesAsync("HomePage", "HideLoadingRing");
                             // Debug.WriteLine(HideLoadingRingStatus);
                             break;
@@ -204,6 +214,10 @@ namespace LANConnect
 
         private async void checkServerButton_Click(object sender, RoutedEventArgs e)
         {
+            checkServerButton.IsEnabled = false;
+            serverURLBox.IsEnabled = false;
+            AutoLoginServerButton.IsEnabled = false;
+
             // Debug 显示分行
             Debug.WriteLine("========================");
 
@@ -232,6 +246,9 @@ namespace LANConnect
                     Debug.WriteLine("getServerName name returns a bad one: Error");
                     Debug.WriteLine("The string is showed below:");
                     Debug.WriteLine(serverName);
+                    checkServerButton.IsEnabled = true;
+                    serverURLBox.IsEnabled = true;
+                    AutoLoginServerButton.IsEnabled = true;
                 }
                 else
                 {
@@ -250,6 +267,9 @@ namespace LANConnect
                     Debug.WriteLine("getServerName bio returns a bad one: Error");
                     Debug.WriteLine("The string is showed below:");
                     Debug.WriteLine(serverBio);
+                    checkServerButton.IsEnabled = true;
+                    serverURLBox.IsEnabled = true;
+                    AutoLoginServerButton.IsEnabled = true;
                 }
                 else
                 {
@@ -276,6 +296,9 @@ namespace LANConnect
             {
                 LoadingRing.Visibility = Visibility.Collapsed;
                 Debug.WriteLine("Server URL seems to be nothing");
+                checkServerButton.IsEnabled = true;
+                serverURLBox.IsEnabled = true;
+                AutoLoginServerButton.IsEnabled = true;
                 return;
             }
         }
@@ -551,6 +574,11 @@ namespace LANConnect
         {
             try
             {
+                userEmailBox.IsEnabled = false;
+                userPasswordBox.IsEnabled = false;
+                userPasswordLoginButton.IsEnabled = false;
+                AutoLoginPasswordButton.IsEnabled = false;
+
                 LoadingRing.Visibility = Visibility.Visible;
 
                 // 获取 Token
@@ -569,6 +597,10 @@ namespace LANConnect
                     Debug.WriteLine("Error when using setupServerWindow.");
                     Debug.WriteLine("The error message is shown below:");
                     Debug.WriteLine(setupStatus);
+                    userPasswordLoginButton.IsEnabled = true;
+                    userEmailBox.IsEnabled = true;
+                    userPasswordBox.IsEnabled = true;
+                    AutoLoginPasswordButton.IsEnabled = true;
                 }
                 LoadingRing.Visibility = Visibility.Collapsed;
             }
@@ -1105,15 +1137,21 @@ namespace LANConnect
                 string UID = await GetOtherPages("PeoplePage", "SearchTextBox", "Text");
                 Debug.WriteLine($"UID: {UID}");
 
-                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserUIDTextBlock", "Text", "#"+UID);
-
                 string UserName = await JsonGetPropertyWithKey(UserList, "uid", UID, "name");
                 Debug.WriteLine($"UserName: {UserName}");
-                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserNameTextBlock", "Text", UserName);
-
                 string UserEmail = await JsonGetPropertyWithKey(UserList, "uid", UID, "email");
                 Debug.WriteLine($"UserEmail: {UserEmail}");
-                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserEmailTextBlock", "Text", UserEmail);
+
+                if(UserName != null && UserEmail != null)
+                {
+                    await ChangeOtherPagesAsync("PeoplePage", "SelectedUserUIDTextBlock", "Text", "#" + UID);
+                    await ChangeOtherPagesAsync("PeoplePage", "SelectedUserNameTextBlock", "Text", UserName);
+                    await ChangeOtherPagesAsync("PeoplePage", "SelectedUserEmailTextBlock", "Text", UserEmail);
+                }
+                else
+                {
+                    Debug.WriteLine("UID invaild");
+                }
 
                 string UserAvatarAPIURL = $"{serverURL}/api/resource/avatar?uid={UID}";
                 Debug.WriteLine($"ListUserAPIURL: {UserAvatarAPIURL}");
@@ -1299,6 +1337,11 @@ namespace LANConnect
 
         private async void AutoLoginPasswordButton_Click(object sender, RoutedEventArgs e)
         {
+            userEmailBox.IsEnabled = false;
+            userPasswordBox.IsEnabled = false;
+            userPasswordLoginButton.IsEnabled = false;
+            AutoLoginPasswordButton.IsEnabled = false;
+
             LoadingRing.Visibility = Visibility.Visible;
             await AutoLogin();
             LoadingRing.Visibility = Visibility.Collapsed;
@@ -1307,6 +1350,10 @@ namespace LANConnect
 
         private async void AutoLoginServerButton_Click(object sender, RoutedEventArgs e)
         {
+            serverURLBox.IsEnabled = false;
+            checkServerButton.IsEnabled = false;
+            AutoLoginServerButton.IsEnabled = false;
+
             LoadingRing.Visibility = Visibility.Visible;
             await AutoLogin();
             LoadingRing.Visibility = Visibility.Collapsed;

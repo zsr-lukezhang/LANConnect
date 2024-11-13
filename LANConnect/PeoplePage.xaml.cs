@@ -49,5 +49,19 @@ namespace LANConnect
             Debug.WriteLine(status);
         }
 
+        private void MessageSelectedUserButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void CallSelectedUserButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MoreSelectedUserButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

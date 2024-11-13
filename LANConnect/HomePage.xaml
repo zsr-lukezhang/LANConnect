@@ -17,8 +17,8 @@
             </StackPanel>
         </StackPanel>
         <StackPanel x:Name="SP_ServerName" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="100,120,100,100" Visibility="Visible">
-            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="25" HorizontalAlignment="Center" Margin="0,70,0,0"></TextBlock>
-            <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="0,20,0,0"></TextBlock>
+            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="20" HorizontalAlignment="Center" Margin="0,70,0,0"></TextBlock>
+            <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="25" HorizontalAlignment="Center" Margin="0,20,0,0"></TextBlock>
             <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="SemiBold" FontFamily="Cascadia Code" FontSize="16.5" HorizontalAlignment="Center" Margin="0,15,0,0"></TextBlock>
             <TextBlock x:Name="serverURLTextBlock" Text="https://vocechat.example.com" FontFamily="Cascadia Code" FontWeight="Light" HorizontalAlignment="Center" Margin="10,15,10,10"></TextBlock>
         </StackPanel>
@@ -29,9 +29,9 @@
         </StackPanel>
         <TextBlock Text="Home Page" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="20" Visibility="Collapsed"></TextBlock>
         <ProgressRing x:Name="LoadingRing" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50"  Height="50" Visibility="Collapsed"></ProgressRing>
-        <ContentDialog x:Name="LoadingRing_ContentDialog" Title="Loading, please wait..." IsPrimaryButtonEnabled="False" IsSecondaryButtonEnabled="False" Visibility="Collapsed">
+        <ContentDialog x:Name="ErrorContentDialog" Title="Error title" IsPrimaryButtonEnabled="True" IsEnabled="True" IsSecondaryButtonEnabled="False" Width="200" Height="200" Visibility="Collapsed">
             <Grid>
-                <ProgressRing x:Name="ProgressRing" IsActive="True" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock x:Name="ErrorContentTextBlock" Text="Error content" FontFamily="Cascadia Code" VerticalAlignment="Center" TextWrapping="Wrap"></TextBlock>
             </Grid>
         </ContentDialog>
     </Grid>

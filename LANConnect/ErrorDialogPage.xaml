@@ -1,0 +1,11 @@
+<Page
+    x:Class="LANConnect.ErrorDialogPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <!-- Content body -->
+        <TextBlock Text="Some error content" FontFamily="Cascadia Code" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" />
+    </StackPanel>
+
+</Page>

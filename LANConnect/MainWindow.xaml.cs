@@ -276,6 +276,12 @@ namespace LANConnect
                     Debug.WriteLine("This is checkServerButton speaking ");
                     Debug.WriteLine("getServerName bio returns a good one:" + serverBio);
                     serverBioTextBlock.Text = serverBio;
+
+                    userPasswordLoginButton.IsEnabled = true;
+                    userEmailBox.IsEnabled = true;
+                    userPasswordBox.IsEnabled = true;
+                    AutoLoginPasswordButton.IsEnabled = true;
+
                     string saveURLStatus =  await SaveFileAsync(serverURLBox.Text, "User/serverURL.txt");
                     if (saveURLStatus.StartsWith("Success"))
                     {

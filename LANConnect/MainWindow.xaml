@@ -29,14 +29,14 @@
             <Button x:Name="AutoLoginServerButton" Content="Try Auto Login (Beta)" ToolTipService.ToolTip="If you already  loged in to the same (and only this) server before thie time, you can try Auto Login. Auto Login reads the password in Documents\LCNT\User\ and try to log in with it." FontFamily="Cascadia Code" FontWeight="Medium" Height="35" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0" Click="AutoLoginServerButton_Click"></Button>
         </StackPanel>
         <StackPanel x:Name="SP_Login" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Visibility="Collapsed">
-            <TextBox Name="userEmailBox" PlaceholderText="admin@lukezhang.win" Header="Enter your Email:" IsSpellCheckEnabled="False" FontFamily="Cascadia Code" Width="300" Height="60" Margin="0,120,0,0" Visibility="Visible"></TextBox>
-            <PasswordBox Name="userPasswordBox" PlaceholderText="123456" Header="Enter your password:" FontFamily="Cascadia Code" Width="300" Height="60" Visibility="Visible"></PasswordBox>
-            <Button Name="userPasswordLoginButton" FontFamily="Cascadia Code" FontWeight="SemiBold" Content="Login" Click="userPasswordLoginButton_Click" HorizontalAlignment="Center" Width="200" Height="45" Margin="10" Visibility="Visible"></Button>
+            <TextBox Name="userEmailBox" PlaceholderText="admin@lukezhang.win" Header="Enter your Email:" IsSpellCheckEnabled="False" IsEnabled="False" FontFamily="Cascadia Code" Width="300" Height="60" Margin="0,120,0,0" Visibility="Visible"></TextBox>
+            <PasswordBox Name="userPasswordBox" PlaceholderText="123456" Header="Enter your password:" IsEnabled="False" FontFamily="Cascadia Code" Width="300" Height="60" Visibility="Visible"></PasswordBox>
+            <Button Name="userPasswordLoginButton" FontFamily="Cascadia Code" FontWeight="SemiBold" Content="Login" IsEnabled="False" Click="userPasswordLoginButton_Click" HorizontalAlignment="Center" Width="200" Height="45" Margin="10" Visibility="Visible"></Button>
             <TextBlock Text="---- OR ----" CharacterSpacing="100" HorizontalAlignment="Center" FontWeight="ExtraLight" FontFamily="Cascadia Code"></TextBlock>
-            <Button x:Name="AutoLoginPasswordButton" Content="Try Auto Login (Beta)" FontFamily="Cascadia Code" FontWeight="Medium" Height="35" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0" Click="AutoLoginPasswordButton_Click"></Button>
+            <Button x:Name="AutoLoginPasswordButton" Content="Try Auto Login (Beta)" IsEnabled="False" FontFamily="Cascadia Code" FontWeight="Medium" Height="35" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0" Click="AutoLoginPasswordButton_Click"></Button>
         </StackPanel>
         <StackPanel x:Name="SP_ServerName" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="100,100,100,100" Visibility="Collapsed">
-            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server:" FontWeight="Bold" FontFamily="Cascadia Code" FontSize="20"></TextBlock>
+            <TextBlock x:Name="serverWelcomeTextBlock" Text="Welcome to server:" FontWeight="Bold" FontFamily="Cascadia Code" HorizontalAlignment="Center" FontSize="20"></TextBlock>
             <TextBlock x:Name="serverNameTextBlock" Text="Server Name" FontWeight="Black" FontFamily="Cascadia Code" FontSize="25" HorizontalAlignment="Center" Margin="10,10,10,10"></TextBlock>
             <TextBlock x:Name="serverBioTextBlock" Text="Server Bio" FontWeight="Normal" FontFamily="Cascadia Code" FontSize="15.5" HorizontalAlignment="Center" Margin="5,5,5,5"></TextBlock>
             <TextBlock x:Name="serverURLTextBlock" Text="https://vocechat.example.com" FontFamily="Cascadia Code" FontWeight="Light" HorizontalAlignment="Center" Margin="10,10,10,10"></TextBlock>

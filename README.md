@@ -4,10 +4,16 @@
 - [X] Join a VoceChat server
 - [X] Auto Login 
 - [X] Find a user
-- [ ] Send Messages  
-- [ ] Send Pictures  
-- [ ] Send Files  
-- [ ] Send Videos  
+- [X] Send Text  
+- [ ] Receive Text
+- [X] Send Markdown
+- [ ] Receive Markdown
+- [ ] Send Pictures
+- [ ] Receive Pictures
+- [ ] Send Videos
+- [ ] Receive Videos  
+- [ ] Send Files
+- [ ] Receive Files
 - [ ] Admin features
 ## Screenshots
 ![Type in a server URL](https://github.com/user-attachments/assets/f563e3f9-9d8e-4280-bbe3-d62ef7f9d930)

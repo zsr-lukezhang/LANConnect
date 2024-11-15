@@ -45,23 +45,54 @@ namespace LANConnect
 
         private async void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            string status = await SendToMainWindow("SearchButtonClicked");
-            Debug.WriteLine(status);
+            if ( SearchTextBox.Text != "")
+            {
+                string status = await SendToMainWindow("SearchButtonClicked");
+                Debug.WriteLine(status);
+            }
         }
 
-        private void MessageSelectedUserButton_Click(object sender, RoutedEventArgs e)
+        private async void MessageSelectedUserButton_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void CallSelectedUserButton_Click(object sender, RoutedEventArgs e)
+        private async void CallSelectedUserButton_Click(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void MoreSelectedUserButton_Click(object sender, RoutedEventArgs e)
+        private async void MoreSelectedUserButton_Click(object sender, RoutedEventArgs e)
         {
 
         }
+
+        private async void SendNormalMessageButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 发送普通消息
+            string message = SendNormalMessageTextBox.Text;
+            if (!string.IsNullOrEmpty(message))
+            {
+                string status = await SendToMainWindow($"SendNormalMessage");
+            }
+        }
+
+        private async void SendMarkdownMessageButton_Click(object sender, RoutedEventArgs e)
+        {
+            // 发送Markdown消息
+            string message = SendNormalMessageTextBox.Text;
+            if (!string.IsNullOrEmpty(message))
+            {
+                string status = await SendToMainWindow($"SendMarkdownMessage");
+            }
+        }
+
+        private string ConvertToMarkdown(string message)
+        {
+            // 简单的Markdown转换示例
+            return $"**{message}**";
+        }
+
+
     }
 }

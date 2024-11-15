@@ -9,43 +9,71 @@
     mc:Ignorable="d">
 
     <Grid>
-        <StackPanel Name="SP_UserMessage" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left" Width="500" Margin="20">
-            <TextBlock Text="Chat" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="25"></TextBlock>
-            <StackPanel x:Name="SP_ChatPeopleHeading" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
-                <Image x:Name="ChatHeadingUserAvatarImage" HorizontalAlignment="Left" VerticalAlignment="Center" Width="30" Height="30" Source="/Assets/User/default.png"></Image>
-                <TextBlock x:Name="ChatHeadingTextBlock" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10" FontFamily="Cascadia Code" FontWeight="Bold"  FontSize="20" Text="Luke Zhang"></TextBlock>
+        <StackPanel Name="SP_UserMessage" Orientation="Vertical" HorizontalAlignment="Left" Width="500">
+            <TextBlock Text="Chat with a user" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Cascadia Code" FontSize="20" FontWeight="SemiBold" CharacterSpacing="100" Margin="10"></TextBlock>
+            <StackPanel x:Name="SP_ChatPeopleHeading" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10">
+                <Image x:Name="ChatHeadingUserAvatarImage" HorizontalAlignment="Left" VerticalAlignment="Center" Width="40" Height="40" Source="/Assets/User/default.png"></Image>
+                <TextBlock x:Name="ChatHeadingTextBlock" Text="User Name" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Cascadia Code" FontSize="22" Margin="10"></TextBlock>
+                <TextBlock x:Name="ChatHeadingUIDTextBlock" Text="UID" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Cascadia Code" FontSize="20" Margin="10" FontWeight="Light"></TextBlock>
             </StackPanel>
-            <TextBlock Text="UserMessage StackPanel" FontFamily="Cascadia Code" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+            <StackPanel x:Name="SP_Messages" HorizontalAlignment="Center" VerticalAlignment="Top" Width="500">
+                <ListView x:Name="MessagesListView" SelectionMode="Multiple" HorizontalAlignment="Center" VerticalAlignment="Top" Width="500">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <Image Source="{Binding Avatar}" Width="20" Height="20" Margin="5"/>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Sender}" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel x:Name="SP_SendMessages" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="500" Margin="20">
+            <TextBox x:Name="SendNormalMessageTextBox" TextWrapping="Wrap" ToolTipService.ToolTip="Type in a message..." AcceptsReturn="True" Width="370" VerticalAlignment="Bottom" HorizontalAlignment="Left"></TextBox>
+            <Button x:Name="MarkdownMessageButton" Click="SendMarkdownMessageButton_Click" ToolTipService.ToolTip="Markdown Messages" Width="50" Height="30" Margin="10,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <SymbolIcon Symbol="Bookmarks"></SymbolIcon>
+            </Button>
+            <Button x:Name="SendNormalMessageButton" Click="SendNormalMessageButton_Click" ToolTipService.ToolTip="Send" Width="50" Height="30" Margin="10,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <SymbolIcon Symbol="Send"></SymbolIcon>
+            </Button>
         </StackPanel>
         <StackPanel Name="SP_UserSearch" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0" Width="300">
-            <TextBlock Text="Search a user" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Cascadia Code" FontSize="20" CharacterSpacing="100" Margin="10"></TextBlock>
+            <TextBlock Text="Search a user" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Cascadia Code" FontSize="20" FontWeight="SemiBold" CharacterSpacing="100" Margin="10"></TextBlock>
             <StackPanel x:Name="SP_Search" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10" Width="300" Height="100">
-                <TextBox x:Name="SearchTextBox" Header="Type in a UID:" PlaceholderText="UID" HorizontalAlignment="Left" VerticalAlignment="Top" Width="170" Height="60" ></TextBox>
-                <Button x:Name="SearchButton" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,0,0,0" Width="100" Height="60" Click="SearchButton_Click">
+                <TextBox x:Name="SearchTextBox" Header="Type in a UID:" PlaceholderText="1" ToolTipService.ToolTip="Type in a UID like 1" HorizontalAlignment="Left" VerticalAlignment="Top" Width="170" Height="60" ></TextBox>
+                <Button x:Name="SearchButton" ToolTipService.ToolTip="Search" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,0,0,0" Width="100" Height="60" Click="SearchButton_Click">
                     <SymbolIcon Symbol="Find"></SymbolIcon>
                 </Button>
             </StackPanel>
             <StackPanel x:Name="SP_SelectedUser" Orientation="Vertical" HorizontalAlignment="Center" Width="300" Margin="0">
                 <StackPanel x:Name="SP_SelectedUserInfo" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Center" Width="300" Margin="0">
-                    <Image x:Name="SeletedUserImage" Source="/Assets/User/default.png" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="200"></Image>
+                    <StackPanel x:Name="SP_UserAvatar" HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="200">
+                        <Image x:Name="SeletedUserImage" Source="/Assets/User/default.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="200" Height="200" Visibility="Visible"></Image>
+                        <ProgressRing x:Name="SelectedUserAvatarRing" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" Width="100" Visibility="Collapsed"></ProgressRing>
+                    </StackPanel>
                     <TextBlock x:Name="SelectedUserNameTextBlock" Text="User Name" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="10" FontFamily="Cascadia Code" FontSize="20" FontWeight="SemiBold"></TextBlock>
                     <TextBlock x:Name="SelectedUserEmailTextBlock" Text="Email" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="5" FontFamily="Cascadia Code" FontSize="16.5" FontWeight="Normal"></TextBlock>
                     <TextBlock x:Name="SelectedUserUIDTextBlock" Text="UID" HorizontalAlignment="Center" Margin="5" FontFamily="Cascadia Code" FontSize="16.5" FontWeight="Light"></TextBlock>
                 </StackPanel>
                 <StackPanel x:Name="SP_SelectedUserOperations" Orientation="Horizontal" Width="300" HorizontalAlignment="Center" Margin="0">
-                    <Button x:Name="MessageSelectedUserButton" Click="MessageSelectedUserButton_Click" Width="90" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
+                    <Button x:Name="MessageSelectedUserButton" ToolTipService.ToolTip="Message" Click="MessageSelectedUserButton_Click" Width="90" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
                         <SymbolIcon Symbol="Message"></SymbolIcon>
                     </Button>
-                    <Button x:Name="CallSelectedUserButton" Click="CallSelectedUserButton_Click" Width="90" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
+                    <Button x:Name="CallSelectedUserButton" ToolTipService.ToolTip="Call (if available)" Click="CallSelectedUserButton_Click" Width="90" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
                         <SymbolIcon Symbol="Phone"></SymbolIcon>
                     </Button>
-                    <Button x:Name="MoreSelectedUserButton" Click="MoreSelectedUserButton_Click" Width="90" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
+                    <Button x:Name="MoreSelectedUserButton" ToolTipService.ToolTip="More opinions..." Click="MoreSelectedUserButton_Click" Width="90" Height="70" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5">
                         <SymbolIcon Symbol="More"></SymbolIcon>
                     </Button>
                 </StackPanel>
             </StackPanel>
         </StackPanel>
-
-        <TextBlock Text="People Page" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="20"></TextBlock>
+        
+        <!-- 删掉页面标识 -->
+        <!-- <TextBlock Text="People Page" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Cascadia Code" FontSize="20"></TextBlock> -->
     </Grid>
 </Page>

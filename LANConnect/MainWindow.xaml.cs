@@ -31,6 +31,10 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using static System.Net.Mime.MediaTypeNames;
+using System.Security.Cryptography;
+using System.Net.Http.Headers;
+using Windows.Storage.Pickers;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -309,7 +313,7 @@ namespace LANConnect
             }
         }
 
-        public async Task<object> PostRequestAsync(string url, string apiKey, string content, string returnType)
+        private async Task<object> PostRequestAsync(string url, string apiKey, string content, string returnType)
         {
             using (HttpClient client = new HttpClient())
             {
@@ -339,7 +343,100 @@ namespace LANConnect
                 }
             }
         }
-        
+
+        // PostRequestAsyncWithContentType: 专为发消息设计的 PostRequestAsync
+
+        public static async Task<int> PostRequestWithCurlAsync(string url, string contentType, string content, string apiKey)
+        {
+            // 创建 cURL 命令
+            string curlCommand = $"curl -X POST \"{url}\" -H \"Content-Type: {contentType}\" -H \"accept: application/json; charset=utf-8\" -d \"{content}\" -w \"%{{http_code}}\" -o /dev/null -s";
+
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                curlCommand += $" -H \"X-API-Key: {apiKey}\"";
+            }
+
+            // 启动进程
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/C {curlCommand}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.Start();
+
+            // 读取输出
+            string output = await process.StandardOutput.ReadToEndAsync();
+            string error = await process.StandardError.ReadToEndAsync();
+
+            process.WaitForExit();
+
+            // 输出日志
+            Console.WriteLine($"Output: {output}");
+            Console.WriteLine($"Error: {error}");
+
+            // 解析 HTTP 状态码
+            if (int.TryParse(output, out int statusCode))
+            {
+                return statusCode;
+            }
+            else
+            {
+                Console.WriteLine("Failed to parse HTTP status code.");
+                return -1; // 返回一个错误码
+            }
+        }
+
+
+
+        private async Task<int> PostRequestAsyncWithContentType(string url, string contentType, string content, string apiKey)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                // Create the request
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = new StringContent(content)
+                };
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                request.Version = HttpVersion.Version10; // Set HTTP version to 1.0
+
+                Debug.WriteLine($"Content: {content}");
+
+                // Set headers
+                request.Headers.Add("accept", "application/json");
+                request.Headers.Add("accept-charset", "utf-8");
+
+                // Generate Referer header from the URL
+                Uri uri = new Uri(url);
+                string refererUrl = $"{uri.Scheme}://{uri.Host}";
+                request.Headers.Add("Referer", refererUrl);
+
+                if (!string.IsNullOrEmpty(apiKey))
+                {
+                    request.Headers.Add("X-API-Key", apiKey);
+                }
+
+                Debug.WriteLine("Request: ");
+                Debug.WriteLine(request);
+
+                // Send the request
+                HttpResponseMessage response = await client.SendAsync(request);
+                Debug.WriteLine($"Response: {response}");
+                Debug.WriteLine($"Status code:{response.StatusCode}");
+
+                // Return the status code
+                return (int)response.StatusCode;
+            }
+        }
+
         // RenewToken: 输入 服务器地址、Token 与 Refresh_Token，得到新的 Token 与 Refresh_Token。
         // 可能不会使用，因为 UserPasswordLogin 够用了，而这个真的烦
         public async Task<string> RenewToken(string serverURL, string refreshToken, string token)
@@ -1105,9 +1202,47 @@ namespace LANConnect
             }
         }
 
-        private async Task<string> SendMessageTo(string type, string id)
+        private async Task<string> ReadFileAsyncFromOtherLocations(string path)
         {
-            return ("");
+            try
+            {
+                string fullPath = Path.Combine(path);
+                using (StreamReader reader = new StreamReader(fullPath))
+                {
+                    string content = await reader.ReadToEndAsync();
+                    return content;
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"Error: {ex.Message}";
+            }
+        }
+
+        private async Task<string> SendMessageTo(string Token, string Content, string Type, string UID)
+        {
+            try
+            {
+                string serverURL = await ReadFileAsync("User/serverURL.txt");
+                string APIURL = $"{serverURL}/api/user/{UID}/send";
+                Debug.WriteLine($"Send Mssage API URL: {APIURL}");
+                int status = (int)await PostRequestAsyncWithContentType(APIURL, Type, Content, Token);
+                if (status == 200)
+                {
+                    Debug.WriteLine("Send Success");
+                    return "Success";
+                }
+                else
+                {
+                    Debug.WriteLine($"Send error HTTP code: {status}");
+                    return ($"Error. {status}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine ($"SendMessageTo Error: {ex.Message}");
+                return ($"Error: {ex.Message}"); 
+            }
         }
 
 
@@ -1121,8 +1256,35 @@ namespace LANConnect
             {
                 case "SearchButtonClicked":
                     return await HandleSearchButtonClickAsync();
-                // 你可以在这里添加更多的事件处理
+                case "SendNormalMessage":
+                    string serverURL = await ReadFileAsync("User/serverURL.txt");
+                    string userEmail = await ReadFileAsync("User/userEmail.txt");
+                    string userPassword = await ReadFileAsync("User/userPassword.txt");
+                    string Token = await UserPasswordLogin(serverURL, userEmail, userPassword, "token");
+                    string Content = await GetOtherPages("PeoplePage", "SendNormalMessageTextBox", "Text");
+                    string UID = await GetOtherPages("PeoplePage", "ChatHeadingUIDTextBlock", "Text");
+                    await ChangeOtherPagesAsync("PeoplePage", "SendNormalMessageTextBox", "Text", "");
+                    return (await SendMessageTo(Token, Content, "text/plain", UID));
+                case "SendMarkdownMessage":
+                    serverURL = await ReadFileAsync("User/serverURL.txt");
+                    userEmail = await ReadFileAsync("User/userEmail.txt");
+                    userPassword = await ReadFileAsync("User/userPassword.txt");
+                    Token = await UserPasswordLogin(serverURL, userEmail, userPassword, "token");
+                    Content = await GetOtherPages("PeoplePage", "SendNormalMessageTextBox", "Text");
+                    UID = await GetOtherPages("PeoplePage", "ChatHeadingUIDTextBlock", "Text");
+                    await ChangeOtherPagesAsync("PeoplePage", "SendNormalMessageTextBox", "Text", "");
+                    return (await SendMessageTo(Token, Content, "text/markdown", UID));
+                case "SendFile":
+                    serverURL = await ReadFileAsync("User/serverURL.txt");
+                    userEmail = await ReadFileAsync("User/userEmail.txt");
+                    userPassword = await ReadFileAsync("User/userPassword.txt");
+                    Token = await UserPasswordLogin(serverURL, userEmail, userPassword, "token");
+                    string FilePath = await PickAFile();
+                    Content = await ReadFileAsyncFromOtherLocations(FilePath);
+                    UID = await GetOtherPages("PeoplePage", "ChatHeadingUIDTextBlock", "Text");
+                    return (await SendMessageTo(Token, Content, "vocechat/file", UID));
                 default:
+                    Debug.WriteLine($"OtherPagesEvents got an unknown event {eventName}");
                     return "Error. Unknown event: " + eventName;
             }
         }
@@ -1131,6 +1293,8 @@ namespace LANConnect
         {
             try
             {
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserAvatarRing", "Visibility", Visibility.Visible);
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserImage", "Visibility", Visibility.Collapsed);
                 Debug.WriteLine("This is HandleSearchButtonClickAsync speaking");
                 string serverURL = await ReadFileAsync("User/serverURL.txt");
                 Debug.WriteLine($"serverURL: {serverURL}");
@@ -1148,11 +1312,13 @@ namespace LANConnect
                 string UserEmail = await JsonGetPropertyWithKey(UserList, "uid", UID, "email");
                 Debug.WriteLine($"UserEmail: {UserEmail}");
 
-                if(UserName != null && UserEmail != null)
+                if(UserName != "" && UserEmail != "")
                 {
                     await ChangeOtherPagesAsync("PeoplePage", "SelectedUserUIDTextBlock", "Text", "#" + UID);
                     await ChangeOtherPagesAsync("PeoplePage", "SelectedUserNameTextBlock", "Text", UserName);
+                    await ChangeOtherPagesAsync("PeoplePage", "ChatHeadingTextBlock", "Text", UserName);
                     await ChangeOtherPagesAsync("PeoplePage", "SelectedUserEmailTextBlock", "Text", UserEmail);
+                    await ChangeOtherPagesAsync("PeoplePage", "ChatHeadingUIDTextBlock", "Text", UID);
                 }
                 else
                 {
@@ -1176,11 +1342,14 @@ namespace LANConnect
                     string ChangeOtherPagesAvatarStatus = await ChangeOtherPagesAsync("PeoplePage", "SeletedUserImage", "Source", UserAvatar);
                     Debug.WriteLine($"Change Avatar Status: {ChangeOtherPagesAvatarStatus}");
                 }
-
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserAvatarRing", "Visibility", Visibility.Collapsed);
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserImage", "Visibility", Visibility.Visible);
                 return "Success: Search button click handled";
             }
             catch(Exception ex)
             {
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserAvatarRing", "Visibility", Visibility.Collapsed);
+                await ChangeOtherPagesAsync("PeoplePage", "SelectedUserImage", "Visibility", Visibility.Visible);
                 return ($"Error:{ex.Message}");
             }
         }
@@ -1242,7 +1411,7 @@ namespace LANConnect
             }
         }
 
-        private void SetImageSource(Image imageControl, string base64String)
+        private void SetImageSource(Microsoft.UI.Xaml.Controls.Image imageControl, string base64String)
         {
             var imageHelper = new MainWindow();
             BitmapImage bitmapImage = imageHelper.StringToImage(base64String);
@@ -1363,6 +1532,46 @@ namespace LANConnect
             LoadingRing.Visibility = Visibility.Visible;
             await AutoLogin();
             LoadingRing.Visibility = Visibility.Collapsed;
+        }
+
+
+        private async Task<string> PickAFile()
+        {
+            string Output = "";
+
+            // Clear previous returned file name, if it exists, between iterations of this scenario
+            Output = "";
+
+            // Create a file picker
+            var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+
+            // See the sample code below for how to make the window accessible from the App class.
+            var window = this;
+
+            // Retrieve the window handle (HWND) of the current WinUI 3 window.
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+
+            // Initialize the file picker with the window handle (HWND).
+            WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hWnd);
+
+            // Set options for your file picker
+            openPicker.ViewMode = PickerViewMode.Thumbnail;
+            openPicker.FileTypeFilter.Add("*");
+
+            // Open the picker for the user to pick a file
+            var file = await openPicker.PickSingleFileAsync();
+            if (file != null)
+            {
+                Output = "Picked file: " + file.Path;
+                Debug.WriteLine(Output);
+                return (Output);
+            }
+            else
+            {
+                Output = "Error: Operation cancelled.";
+                Debug.WriteLine(Output);
+                return (Output);
+            }
         }
     }
 }

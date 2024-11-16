@@ -35,6 +35,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Security.Cryptography;
 using System.Net.Http.Headers;
 using Windows.Storage.Pickers;
+using System.Net.Mime;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -1275,18 +1276,65 @@ namespace LANConnect
                     await ChangeOtherPagesAsync("PeoplePage", "SendNormalMessageTextBox", "Text", "");
                     return (await SendMessageTo(Token, Content, "text/markdown", UID));
                 case "SendFile":
-                    serverURL = await ReadFileAsync("User/serverURL.txt");
-                    userEmail = await ReadFileAsync("User/userEmail.txt");
-                    userPassword = await ReadFileAsync("User/userPassword.txt");
-                    Token = await UserPasswordLogin(serverURL, userEmail, userPassword, "token");
-                    string FilePath = await PickAFile();
-                    Content = await ReadFileAsyncFromOtherLocations(FilePath);
-                    UID = await GetOtherPages("PeoplePage", "ChatHeadingUIDTextBlock", "Text");
-                    return (await SendMessageTo(Token, Content, "vocechat/file", UID));
+                    try
+                    {
+                        string uploadResponse = await UploadFileAsync();
+                        if (!uploadResponse.StartsWith("Error"))
+                        {
+                            // 正确的判断时
+                            string filepath = JsonDecode(uploadResponse, "path");
+                            int status = await SendFileToWithSendMessageTo(filepath);
+                            if (status == 200)
+                            {
+                                return ("Success");
+                            }
+                            else
+                            {
+                                return ($"Error: {status}");
+                            }
+                        }
+                        else
+                        {
+                            return ("Error");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        return(ex.Message);
+                    }
+                    return ("");
                 default:
                     Debug.WriteLine($"OtherPagesEvents got an unknown event {eventName}");
                     return "Error. Unknown event: " + eventName;
             }
+        }
+
+        private async Task<int> SendFileToWithSendMessageTo(string Path)
+        {
+            try
+            {
+                string userToken = await ReadFileAsync("User/userToken.txt");
+                string UID = await GetOtherPages("PeoplePage", "ChatHeadingUIDTextBlock", "Text");
+                string sendMessageStatus = await SendMessageTo(userToken, $"{{\"path\": \"{Path}\"}}", "vocechat/file", UID);
+                int sendMessageStatus_int = 0;
+                int.TryParse(sendMessageStatus, out sendMessageStatus_int);
+                return (sendMessageStatus_int);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                return (0);
+            }
+        }
+
+        private static string JsonEncode(string head, string body)
+        {
+            var jsonObject = new Dictionary<string, string>
+        {
+            { head, body }
+        };
+
+            return JsonSerializer.Serialize(jsonObject);
         }
 
         private async Task<string> HandleSearchButtonClickAsync()
@@ -1535,7 +1583,10 @@ namespace LANConnect
         }
 
 
-        private async Task<string> PickAFile()
+
+        // PickAFile: 打开对话框让用户选择文件，并返回文件地址
+        // 从 WinUI 3 Gallery 上借鉴的，稍微改了一下
+        private async Task<object> PickAFile()
         {
             string Output = "";
 
@@ -1562,15 +1613,117 @@ namespace LANConnect
             var file = await openPicker.PickSingleFileAsync();
             if (file != null)
             {
-                Output = "Picked file: " + file.Path;
-                Debug.WriteLine(Output);
-                return (Output);
+                string FileData = await ReadFileAsync(file.Path);
+                Output = file.Path;
+                Debug.WriteLine($"Output: {Output}");
+                return (file);
             }
             else
             {
                 Output = "Error: Operation cancelled.";
                 Debug.WriteLine(Output);
-                return (Output);
+                return ("Error: " + Output);
+            }
+        }
+
+        private async Task<string> UploadFileAsync()
+        {
+            string serverURL = await ReadFileAsync("User/serverURL.txt");
+            string userEmail = await ReadFileAsync("User/userEmail.txt");
+            string userPassword = await ReadFileAsync("User/userPassword.txt");
+            string apiKey = await UserPasswordLogin(serverURL, userEmail, userPassword, "token");
+
+            // Create a file picker
+            var openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+
+            // See the sample code below for how to make the window accessible from the App class.
+            var window = this;
+
+            // Retrieve the window handle (HWND) of the current WinUI 3 window.
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+
+            // Initialize the file picker with the window handle (HWND).
+            WinRT.Interop.InitializeWithWindow.Initialize(openPicker, hWnd);
+
+            // Set options for your file picker
+            openPicker.ViewMode = PickerViewMode.Thumbnail;
+            openPicker.FileTypeFilter.Add("*");
+
+            // Open the picker for the user to pick a file
+            var file = await openPicker.PickSingleFileAsync();
+
+            if (file != null)
+            {
+                string file_id = "";
+
+                using (var httpClientForPrepare =new HttpClient())
+                {
+                    var requestContent = new MultipartFormDataContent();
+                    var fileContent = new StreamContent(await file.OpenStreamForReadAsync());
+
+                    httpClientForPrepare.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+
+                    // 获取文件的 MIME 类型
+                    var contentType = file.ContentType;
+                    string prepareContentType = (string) contentType;
+                    string fileName = file.Name;
+                    string content = $"{{\"content_type\": \"{prepareContentType}\", \"filename\": \"{fileName}\"}}";
+
+                    var response = await httpClientForPrepare.PostAsync($"{serverURL}/api/resource/file/prepare", requestContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Handle success
+                        file_id = await response.Content.ReadAsStringAsync();
+                        Debug.WriteLine($"file_id: {file_id}");
+                        // return (await response.Content.ReadAsStringAsync());
+                    }
+                    else
+                    {
+                        // Handle failure
+                        Debug.WriteLine ("Error when preparing: " + response.StatusCode.ToString());
+                    }
+
+                    // SOMETHINGTODISABLECODETRANSPARENT
+                }
+
+                using (var httpClient = new HttpClient())
+                {
+
+                    httpClient.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+
+                    var requestContent = new MultipartFormDataContent();
+                    var fileContent = new StreamContent(await file.OpenStreamForReadAsync());
+
+                    string Data = await ReadFileAsyncFromOtherLocations(file.Path);
+
+                    // 获取文件的 MIME 类型
+                    string contentType = "multipart/form-data";
+
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+
+                    requestContent.Add(fileContent, "chunk_data", Data);
+                    requestContent.Add(new StringContent(file_id), "file_id");
+                    requestContent.Add(new StringContent("true"), "chunk_is_last");
+
+                    var response = await httpClient.PostAsync($"{serverURL}/api/resource/file/upload", requestContent);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Handle success
+                        Debug.WriteLine($"Upload response: {await response.Content.ReadAsStringAsync()}");
+                        Debug.WriteLine($"Upload tatus code: {response.StatusCode}");
+                        return (await response.Content.ReadAsStringAsync());
+                    }
+                    else
+                    {
+                        // Handle failure
+                        Debug.WriteLine($"Error when uploading: {response.StatusCode.ToString()}");
+                        return($"Error: {response.StatusCode.ToString()}");
+                    }
+                }
+            }
+            else
+            {
+                return("Error: file = null");
             }
         }
     }

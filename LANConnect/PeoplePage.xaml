@@ -32,13 +32,16 @@
                 </ListView>
             </StackPanel>
         </StackPanel>
-        <StackPanel x:Name="SP_SendMessages" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="500" Margin="20">
+        <StackPanel x:Name="SP_SendMessages" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="600" Margin="20">
             <TextBox x:Name="SendNormalMessageTextBox" TextWrapping="Wrap" ToolTipService.ToolTip="Type in a message..." AcceptsReturn="True" Width="370" VerticalAlignment="Bottom" HorizontalAlignment="Left"></TextBox>
-            <Button x:Name="MarkdownMessageButton" Click="SendMarkdownMessageButton_Click" ToolTipService.ToolTip="Markdown Messages" Width="50" Height="30" Margin="10,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Button x:Name="MarkdownMessageButton" Click="SendMarkdownMessageButton_Click" ToolTipService.ToolTip="Send this in Markdown" Width="50" Height="30" Margin="10,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <SymbolIcon Symbol="Bookmarks"></SymbolIcon>
             </Button>
             <Button x:Name="SendNormalMessageButton" Click="SendNormalMessageButton_Click" ToolTipService.ToolTip="Send" Width="50" Height="30" Margin="10,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <SymbolIcon Symbol="Send"></SymbolIcon>
+            </Button>
+            <Button x:Name="SendFileMessageButton" Click="SendFileMessageButton_Click" ToolTipService.ToolTip="Send a file" Width="50" Height="30" Margin="10,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <SymbolIcon Symbol="Folder"></SymbolIcon>
             </Button>
         </StackPanel>
         <StackPanel Name="SP_UserSearch" Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0" Width="300">

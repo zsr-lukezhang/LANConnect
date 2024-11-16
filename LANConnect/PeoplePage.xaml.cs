@@ -87,12 +87,9 @@ namespace LANConnect
             }
         }
 
-        private string ConvertToMarkdown(string message)
+        private async void SendFileMessageButton_Click(object sender, RoutedEventArgs e)
         {
-            // 简单的Markdown转换示例
-            return $"**{message}**";
+            await SendToMainWindow("SendFile");
         }
-
-
     }
 }
